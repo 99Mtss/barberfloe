@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BarberFlow | Loja</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body>
+
+    <!-- =========================
+         CABEÇALHO
+    ========================== -->
+    <header class="header">
+
+        <div class="logo-area">
+            <a href="index.html" class="logo">
+                <span>BARBER</span>FLOW
+            </a>
+        </div>
+
+        <button class="cart-button" id="cart-button" aria-label="Abrir carrinho">
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span class="cart-text">
+                Carrinho
+            </span>
+
+            <span class="cart-count" id="cart-count">
+                0
+            </span>
+        </button>
+
+    </header>
+
+
+    <main>
+
+        <!-- =========================
+             INFORMAÇÕES DA LOJA
+        ========================== -->
+        <section class="store-info">
+
+            <h2>Informações da loja</h2>
+
+            <p>
+                Confira nossos produtos e faça seu pedido de forma rápida e fácil.
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             PRODUTOS
+        ========================== -->
+        <section class="products-section">
+
+            <div class="section-title">
+                <h1>Nossos produtos</h1>
+            </div>
+
+
+            <!--
+                Os produtos serão inseridos aqui
+                pelo JavaScript.
+            -->
+            <div class="products-container" id="products-container">
+
+                <!-- Produto exemplo -->
+                <article class="product-card">
+
+                    <div class="product-image">
+                        <span>PRODUTO</span>
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>Produto exemplo</h3>
+
+                        <p class="product-price">
+                            R$ 00,00
+                        </p>
+
+                        <button class="add-product">
+                            Adicionar
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!--
+                    Os próximos produtos serão
+                    carregados dinamicamente.
+                -->
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             DOWNLOAD DO APLICATIVO
+        ========================== -->
+        <section class="app-download">
+
+            <div class="app-icon">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+
+            <div class="app-content">
+
+                <h2>Baixe nosso aplicativo</h2>
+
+                <p>
+                    Tenha acesso rápido à nossa loja diretamente pelo aplicativo.
+                </p>
+
+            </div>
+
+            <a
+                href="#"
+                class="download-button"
+                id="download-app"
+            >
+                <i class="fa-solid fa-download"></i>
+                Baixar aplicativo
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         RODAPÉ
+    ========================== -->
+    <footer class="footer">
+
+        <div class="footer-content">
+
+            <div class="footer-brand">
+
+                <a href="index.html" class="logo">
+                    <span>BARBER</span>FLOW
+                </a>
+
+                <p>
+                    Produtos para cuidar do seu estilo.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="#">
+                    <i class="fa-brands fa-instagram"></i>
+                    Instagram
+                </a>
+
+                <a href="#">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    WhatsApp
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 BarberFlow. Todos os direitos reservados.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         CARRINHO
+    ========================== -->
+    <div class="cart-overlay" id="cart-overlay">
+
+        <div class="cart">
+
+            <div class="cart-header">
+
+                <h2>
+                    Seu carrinho
+                </h2>
+
+                <button
+                    class="close-cart"
+                    id="close-cart"
+                    aria-label="Fechar carrinho"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <div
+                class="cart-items"
+                id="cart-items"
+            >
+                <!-- Produtos do carrinho -->
+            </div>
+
+
+            <div class="cart-footer">
+
+                <div class="cart-total">
+
+                    <span>Total</span>
+
+                    <strong id="cart-total">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+                <button
+                    class="checkout-button"
+                    id="checkout-button"
+                >
+                    Finalizar pedido
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+
+</body>
+</html>
