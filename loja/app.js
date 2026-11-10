@@ -4,9 +4,17 @@
 
 const STORAGE_KEY = "barberflow_produtos";
 const PEDIDOS_STORAGE_KEY = "barberflow_pedidos";
-
+const TELEFONE_LOJA = "5582994114133";
+const CATEGORIAS_LABELS = {
+    pomadas: "Pomadas",
+    shampoo: "Shampoo e cabelo",
+    barba: "Barba",
+    acessorios: "Acessórios",
+    outros: "Outros"
+};
 let produtos = [];
 let carrinho = [];
+let categoriaSelecionada = "todas";
 
 
 /* =========================================================
@@ -32,11 +40,16 @@ const cartCount =
     document.querySelector(".cart-count");
 
 const cartTotal =
-    document.querySelector(".cart-total");
+    document.querySelector("#cart-total");
 
 const checkoutButton =
     document.querySelector(".checkout-button");
 
+const categoryFilters =
+    document.querySelector("#category-filters");
+
+const productsResultCount =
+    document.querySelector("#products-result-count");
 
 /* =========================================================
    INICIALIZAÇÃO
@@ -51,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderizarCarrinho();
 
     configurarEventos();
+
+    configurarFiltrosCategoria();
 
 });
 
@@ -87,7 +102,7 @@ function carregarProdutos() {
             "Erro ao carregar produtos:",
             erro
         );
-
+        produtos = [];
         produtos = [];
     }
 }
@@ -109,11 +124,34 @@ function renderizarProdutos() {
             Number(produto.estoque) > 0
         );
 
-    if (produtosAtivos.length === 0) {
+    renderizarFiltrosCategoria(produtosAtivos);
+
+    const produtosFiltrados =
+        categoriaSelecionada === "todas"
+            ? produtosAtivos
+            : produtosAtivos.filter(produto =>
+                normalizarCategoria(produto.categoria) === categoriaSelecionada
+            );
+
+    if (productsResultCount) {
+        productsResultCount.textContent =
+            `${produtosFiltrados.length} ${
+                produtosFiltrados.length === 1
+                    ? "produto"
+                    : "produtos"
+            }`;
+    }
+
+    if (produtosFiltrados.length === 0) {
 
         productsContainer.innerHTML = `
             <div class="products-empty">
-                <p>Nenhum produto disponível no momento.</p>
+                <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+                <p>${
+                    produtosAtivos.length === 0
+                        ? "Estamos preparando nossa seleção de produtos para você."
+                        : "Nenhum produto encontrado nesta categoria."
+                }</p>
             </div>
         `;
 
@@ -122,9 +160,11 @@ function renderizarProdutos() {
 
 
     productsContainer.innerHTML =
-        produtosAtivos
+        produtosFiltrados
             .map(produto => criarCardProduto(produto))
             .join("");
+
+    configurarFallbacksDeImagem(productsContainer);
 
 
     document
@@ -148,6 +188,116 @@ function renderizarProdutos() {
 }
 
 
+function configurarFiltrosCategoria() {
+
+    if (categoryFilters) {
+
+        categoryFilters.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest("[data-category-filter]");
+
+                if (!button) {
+                    return;
+                }
+
+                categoriaSelecionada =
+                    button.dataset.categoryFilter;
+
+                renderizarProdutos();
+
+            }
+        );
+
+    }
+
+    document
+        .querySelectorAll(".category-card[data-category]")
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    categoriaSelecionada =
+                        normalizarCategoria(link.dataset.category);
+
+                    renderizarProdutos();
+
+                }
+            );
+
+        });
+
+}
+
+
+function renderizarFiltrosCategoria(produtosDisponiveis) {
+
+    if (!categoryFilters) {
+        return;
+    }
+
+    const categorias =
+        [...new Set(
+            produtosDisponiveis.map(produto =>
+                normalizarCategoria(produto.categoria)
+            ).filter(Boolean)
+        )];
+
+    if (
+        categoriaSelecionada !== "todas" &&
+        !categorias.includes(categoriaSelecionada)
+    ) {
+        categoriaSelecionada = "todas";
+    }
+
+    categoryFilters.innerHTML = [
+        criarBotaoFiltro("todas", "Todas"),
+        ...categorias.map(categoria =>
+            criarBotaoFiltro(
+                categoria,
+                CATEGORIAS_LABELS[categoria] || categoria
+            )
+        )
+    ].join("");
+
+}
+
+
+function criarBotaoFiltro(categoria, rotulo) {
+
+    const selecionado =
+        categoriaSelecionada === categoria;
+
+    return `
+        <button
+            class="category-filter${selecionado ? " active" : ""}"
+            type="button"
+            data-category-filter="${escaparHTML(categoria)}"
+            aria-pressed="${selecionado}"
+        >
+            ${escaparHTML(rotulo)}
+        </button>
+    `;
+
+}
+
+
+function normalizarCategoria(categoria) {
+
+    return String(categoria || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-");
+
+}
+
+
 /* =========================================================
    CARD DO PRODUTO
    ========================================================= */
@@ -157,21 +307,26 @@ function criarCardProduto(produto) {
     const preco =
         Number(produto.preco || 0);
 
-    const imagem =
-        produto.imagem ||
-        "img/produto-placeholder.jpg";
+    const imagem = String(produto.imagem || "").trim();
+
+    const imagemMarkup = imagem
+        ? `
+            <img src="${escaparHTML(imagem)}" alt="${escaparHTML(produto.nome)}">
+            <span class="image-placeholder" hidden aria-hidden="true">
+                <i class="fa-solid fa-pump-soap"></i>
+            </span>
+        `
+        : `
+            <span class="image-placeholder" aria-hidden="true">
+                <i class="fa-solid fa-pump-soap"></i>
+            </span>
+        `;
 
     return `
         <article class="product-card">
 
             <div class="product-image">
-
-                <img
-                    src="${escaparHTML(imagem)}"
-                    alt="${escaparHTML(produto.nome)}"
-                    onerror="this.src='img/produto-placeholder.jpg'"
-                >
-
+                ${imagemMarkup}
             </div>
 
             <div class="product-info">
@@ -179,6 +334,14 @@ function criarCardProduto(produto) {
                 <h3>
                     ${escaparHTML(produto.nome)}
                 </h3>
+
+                <span class="product-category">
+                    ${escaparHTML(
+                        CATEGORIAS_LABELS[normalizarCategoria(produto.categoria)] ||
+                        produto.categoria ||
+                        "Barbearia"
+                    )}
+                </span>
 
                 <p class="product-description">
                     ${escaparHTML(
@@ -228,7 +391,6 @@ function adicionarAoCarrinho(id) {
 
         return;
     }
-
 
     const estoque =
         Number(produto.estoque || 0);
@@ -317,10 +479,40 @@ function renderizarCarrinho() {
             .map(item => criarItemCarrinho(item))
             .join("");
 
+    configurarFallbacksDeImagem(cartItemsContainer);
+
 
     adicionarEventosCarrinho();
 
     atualizarResumoCarrinho();
+
+}
+
+
+function configurarFallbacksDeImagem(container) {
+
+    container
+        .querySelectorAll("img")
+        .forEach(imagem => {
+
+            imagem.addEventListener(
+                "error",
+                () => {
+
+                    imagem.hidden = true;
+
+                    const placeholder =
+                        imagem.nextElementSibling;
+
+                    if (placeholder) {
+                        placeholder.hidden = false;
+                    }
+
+                },
+                { once: true }
+            );
+
+        });
 
 }
 
@@ -336,9 +528,20 @@ function criarItemCarrinho(item) {
         Number(item.quantidade || 1);
 
 
-    const imagem =
-        item.imagem ||
-        "img/produto-placeholder.jpg";
+    const imagem = String(item.imagem || "").trim();
+
+    const imagemMarkup = imagem
+        ? `
+            <img src="${escaparHTML(imagem)}" alt="${escaparHTML(item.nome)}">
+            <span class="image-placeholder" hidden aria-hidden="true">
+                <i class="fa-solid fa-pump-soap"></i>
+            </span>
+        `
+        : `
+            <span class="image-placeholder" aria-hidden="true">
+                <i class="fa-solid fa-pump-soap"></i>
+            </span>
+        `;
 
 
     return `
@@ -350,13 +553,7 @@ function criarItemCarrinho(item) {
         >
 
             <div class="cart-item-image">
-
-                <img
-                    src="${escaparHTML(imagem)}"
-                    alt="${escaparHTML(item.nome)}"
-                    onerror="this.src='img/produto-placeholder.jpg'"
-                >
-
+                ${imagemMarkup}
             </div>
 
 
@@ -758,6 +955,15 @@ function finalizarPedido() {
         return;
     }
 
+    if (!/^\d{10,15}$/.test(TELEFONE_LOJA)) {
+
+        alert(
+            "O WhatsApp da barbearia ainda não foi configurado."
+        );
+
+        return;
+    }
+
 
     /* -----------------------------------------------------
        DADOS DO CLIENTE
@@ -961,24 +1167,20 @@ function finalizarPedido() {
        MONTAR MENSAGEM DO WHATSAPP
        ----------------------------------------------------- */
 
-    const telefoneLoja =
-        "5582999999999";
-
-
     let mensagem =
-        `Olá! Gostaria de fazer um pedido.%0A%0A`;
+        `Olá! Gostaria de fazer um pedido.\n\n`;
 
 
     mensagem +=
-        `*Pedido:* ${pedidoId}%0A`;
+        `*Pedido:* ${pedidoId}\n`;
 
 
     mensagem +=
-        `*Cliente:* ${nomeCliente.trim()}%0A%0A`;
+        `*Cliente:* ${nomeCliente.trim()}\n\n`;
 
 
     mensagem +=
-        `*Produtos:*%0A`;
+        `*Produtos:*\n`;
 
 
     carrinho.forEach(item => {
@@ -991,13 +1193,13 @@ function finalizarPedido() {
         mensagem +=
             `• ${item.nome} - ` +
             `${item.quantidade}x - ` +
-            `${formatarPreco(subtotal)}%0A`;
+            `${formatarPreco(subtotal)}\n`;
 
     });
 
 
     mensagem +=
-        `%0A*Total:* ${formatarPreco(total)}`;
+        `\n*Total:* ${formatarPreco(total)}`;
 
 
     /* -----------------------------------------------------
@@ -1024,98 +1226,12 @@ function finalizarPedido() {
        ----------------------------------------------------- */
 
     const url =
-        `https://wa.me/${telefoneLoja}?text=${mensagem}`;
+        `https://wa.me/${TELEFONE_LOJA}?text=${encodeURIComponent(mensagem)}`;
 
 
     window.location.href = url;
 
 }
-
-
-    /* -----------------------------------------------------
-       MENSAGEM WHATSAPP
-       ----------------------------------------------------- */
-
-    const telefoneLoja =
-        "5582999999999";
-
-
-    let mensagem =
-        `Olá! Gostaria de fazer um pedido.%0A%0A`;
-
-
-    mensagem +=
-        `*Pedido:* ${pedidoId}%0A`;
-
-
-    mensagem +=
-        `*Cliente:* ${nomeCliente.trim()}%0A`;
-
-
-    mensagem +=
-        `*WhatsApp:* ${telefoneCliente.trim()}%0A%0A`;
-
-
-    mensagem +=
-        `*Produtos:*%0A`;
-
-
-    carrinho.forEach(item => {
-
-        const subtotal =
-            Number(item.preco || 0) *
-            Number(item.quantidade || 0);
-
-
-        mensagem +=
-            `• ${item.nome} - ` +
-            `${item.quantidade}x - ` +
-            `${formatarPreco(subtotal)}%0A`;
-
-    });
-
-
-    mensagem +=
-        `%0A*Total:* ${formatarPreco(total)}`;
-
-
-    /* -----------------------------------------------------
-       LIMPAR CARRINHO
-       ----------------------------------------------------- */
-
-    carrinho = [];
-
-
-    renderizarCarrinho();
-
-    renderizarProdutos();
-
-    fecharCarrinho();
-
-
-    /* -----------------------------------------------------
-       ABRIR WHATSAPP
-       ----------------------------------------------------- */
-
-    const url =
-        `https://wa.me/${telefoneLoja}?text=${mensagem}`;
-
-
-    window.open(
-        url,
-        "_blank"
-    );
-
-
-    /* -----------------------------------------------------
-       CONFIRMAÇÃO
-       ----------------------------------------------------- */
-
-    alert(
-        `Pedido criado com sucesso!\n\nID do pedido: ${pedidoId}`
-    );
-
-
 
 
 /* =========================================================

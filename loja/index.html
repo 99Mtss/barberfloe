@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>BarberFlow | Loja</title>
+    <meta
+        name="description"
+        content="BarberFlow: cuidado de barbearia, produtos para cabelo e agendamento de horários pelo aplicativo."
+    >
+    <meta name="theme-color" content="#11110f">
+    <title>BarberFlow | Barbearia e loja</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <!-- Font Awesome -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -16,240 +18,234 @@
 </head>
 
 <body>
-
-    <!-- =========================
-         CABEÇALHO
-    ========================== -->
     <header class="header">
-
-        <div class="logo-area">
-            <a href="index.html" class="logo">
-                <span>BARBER</span>FLOW
-            </a>
-        </div>
-
-        <button class="cart-button" id="cart-button" aria-label="Abrir carrinho">
-            <i class="fa-solid fa-cart-shopping"></i>
-
-            <span class="cart-text">
-                Carrinho
+        <a href="#inicio" class="logo" aria-label="BarberFlow, início">
+            <span class="logo-mark" aria-hidden="true">
+                <i class="fa-solid fa-scissors"></i>
             </span>
+            <span class="logo-name">BARBER<span>FLOW</span></span>
+        </a>
 
-            <span class="cart-count" id="cart-count">
-                0
-            </span>
+        <nav class="main-nav" aria-label="Navegação principal">
+            <a href="#produtos">Produtos</a>
+            <a href="#barbearia">A barbearia</a>
+            <a href="#app">Agende pelo app</a>
+        </nav>
+
+        <button class="cart-button" id="cart-button" type="button" aria-label="Abrir carrinho">
+            <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+            <span class="cart-text">Sacola</span>
+            <span class="cart-count" id="cart-count" aria-label="0 itens">0</span>
         </button>
-
     </header>
 
-
-    <main>
-
-        <!-- =========================
-             INFORMAÇÕES DA LOJA
-        ========================== -->
-        <section class="store-info">
-
-            <h2>Informações da loja</h2>
-
-            <p>
-                Confira nossos produtos e faça seu pedido de forma rápida e fácil.
-            </p>
-
-        </section>
-
-
-        <!-- =========================
-             PRODUTOS
-        ========================== -->
-        <section class="products-section">
-
-            <div class="section-title">
-                <h1>Nossos produtos</h1>
+    <main id="inicio">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="eyebrow"><span></span> BARBEARIA &amp; CUIDADO MASCULINO</p>
+                <h1 id="hero-title">Seu estilo.<br>Seu ritual.<br><span>Seu momento.</span></h1>
+                <p class="hero-description">
+                    O cuidado de uma boa barbearia, da cadeira de barbeiro
+                    aos produtos que acompanham você em casa.
+                </p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#produtos">
+                        Explorar produtos
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="button button-quiet" href="#app">
+                        <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+                        Agendar horário
+                    </a>
+                </div>
+                <div class="hero-note">
+                    <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                    <span>Da barbearia para a sua rotina.</span>
+                </div>
             </div>
 
-
-            <!--
-                Os produtos serão inseridos aqui
-                pelo JavaScript.
-            -->
-            <div class="products-container" id="products-container">
-
-                <!-- Produto exemplo -->
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <span>PRODUTO</span>
-                    </div>
-
-                    <div class="product-info">
-
-                        <h3>Produto exemplo</h3>
-
-                        <p class="product-price">
-                            R$ 00,00
-                        </p>
-
-                        <button class="add-product">
-                            Adicionar
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!--
-                    Os próximos produtos serão
-                    carregados dinamicamente.
-                -->
-
+            <div class="hero-art" aria-hidden="true">
+                <div class="hero-art-ring"></div>
+                <div class="hero-art-label">BARBER<br><span>FLOW</span></div>
+                <div class="hero-art-tool">
+                    <i class="fa-solid fa-scissors"></i>
+                </div>
+                <div class="hero-art-caption">ESTILO EM CADA DETALHE</div>
+                <div class="hero-art-stripe"></div>
             </div>
-
         </section>
 
+        <section class="category-strip" aria-label="Categorias da loja">
+            <a class="category-card" href="#produtos" data-category="pomadas">
+                <span class="category-icon"><i class="fa-solid fa-pump-soap" aria-hidden="true"></i></span>
+                <span><strong>Finalização</strong><small>Pomadas e modeladores</small></span>
+                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
+            </a>
+            <a class="category-card" href="#produtos" data-category="shampoo">
+                <span class="category-icon"><i class="fa-solid fa-droplet" aria-hidden="true"></i></span>
+                <span><strong>Cabelo</strong><small>Cuidado para os fios</small></span>
+                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
+            </a>
+            <a class="category-card" href="#produtos" data-category="barba">
+                <span class="category-icon"><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span>
+                <span><strong>Barba</strong><small>Seu ritual completo</small></span>
+                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
+            </a>
+        </section>
 
-        <!-- =========================
-             DOWNLOAD DO APLICATIVO
-        ========================== -->
-        <section class="app-download">
+        <section class="products-section section-shell" id="produtos" aria-labelledby="products-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow"><span></span> ESCOLHA DO BARBEIRO</p>
+                    <h2 id="products-title">Cuide do visual <span>em casa.</span></h2>
+                    <p class="section-description">
+                        Pomadas, cremes e cuidados para cabelo e barba.
+                    </p>
+                </div>
+                <span class="section-stamp"><i class="fa-solid fa-scissors" aria-hidden="true"></i> SELEÇÃO BARBERFLOW</span>
+            </div>
 
-            <div class="app-icon">
-                <i class="fa-solid fa-mobile-screen-button"></i>
+            <div class="products-toolbar">
+                <div class="category-filters" id="category-filters" role="group" aria-label="Filtrar produtos por categoria"></div>
+                <p class="products-result-count" id="products-result-count" aria-live="polite"></p>
+            </div>
+            <div class="products-container" id="products-container" aria-live="polite">
+                <div class="products-empty">
+                    <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+                    <p>Estamos preparando nossa seleção de produtos para você.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="barbershop section-shell" id="barbearia" aria-labelledby="barbershop-title">
+            <div class="barbershop-mark" aria-hidden="true">
+                <span class="barber-pole"><i class="fa-solid fa-scissors"></i></span>
+            </div>
+            <div class="barbershop-copy">
+                <p class="eyebrow"><span></span> MAIS QUE UM CORTE</p>
+                <h2 id="barbershop-title">Barbearia e cuidado.<br><span>No seu estilo.</span></h2>
+                <p>
+                    A experiência da barbearia continua depois do corte.
+                    Encontre produtos para manter seu visual e use o aplicativo
+                    para marcar seu próximo horário com os barbeiros.
+                </p>
+                <a class="text-link" href="#app">
+                    Conheça o aplicativo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="barbershop-detail" aria-hidden="true">
+                <span>BF</span>
+                <small>BARBERFLOW<br>BARBEARIA</small>
+            </div>
+        </section>
+
+        <section class="app-download" id="app" aria-labelledby="app-title">
+            <div class="app-visual" aria-hidden="true">
+                <div class="phone-frame">
+                    <div class="phone-speaker"></div>
+                    <div class="phone-screen">
+                        <span class="phone-logo"><i class="fa-solid fa-scissors"></i></span>
+                        <strong>Seu próximo<br>horário, mais perto.</strong>
+                        <span class="phone-line"></span>
+                        <span class="phone-appointment"><i class="fa-regular fa-calendar-check"></i> Agendar horário</span>
+                    </div>
+                </div>
+                <span class="app-visual-spark"><i class="fa-solid fa-star"></i></span>
             </div>
 
             <div class="app-content">
-
-                <h2>Baixe nosso aplicativo</h2>
-
+                <p class="eyebrow"><span></span> BARBERFLOW NO SEU BOLSO</p>
+                <h2 id="app-title">Seu próximo corte<br>começa <span>no app.</span></h2>
                 <p>
-                    Tenha acesso rápido à nossa loja diretamente pelo aplicativo.
+                    Acompanhe a barbearia e agende seu horário com os barbeiros
+                    pelo aplicativo BarberFlow.
                 </p>
-
+                <div class="app-benefits">
+                    <span><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> Agendamento de horários</span>
+                    <span><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Praticidade no celular</span>
+                </div>
+                <div class="app-store-actions" aria-label="Baixar o aplicativo">
+                    <a
+                        class="store-badge store-badge-link"
+                        href="https://play.google.com/store/apps/details?id=com.mmtools.luz"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <i class="fa-brands fa-google-play" aria-hidden="true"></i>
+                        <span><small>DISPONÍVEL EM</small><strong>Google Play</strong></span>
+                    </a>
+                    <span class="store-badge" aria-disabled="true">
+                        <i class="fa-brands fa-apple" aria-hidden="true"></i>
+                        <span><small>DISPONIVEL NA</small><strong>App Store em breve</strong></span>
+                    </span>
+                </div>
+                <p class="app-note">Os links de download serão adicionados quando o aplicativo estiver publicado.</p>
             </div>
-
-            <a
-                href="#"
-                class="download-button"
-                id="download-app"
-            >
-                <i class="fa-solid fa-download"></i>
-                Baixar aplicativo
-            </a>
-
         </section>
-
     </main>
 
-
-    <!-- =========================
-         RODAPÉ
-    ========================== -->
     <footer class="footer">
-
-        <div class="footer-content">
-
-            <div class="footer-brand">
-
-                <a href="index.html" class="logo">
-                    <span>BARBER</span>FLOW
+        <div class="footer-main">
+            <a href="#inicio" class="logo" aria-label="BarberFlow, voltar ao início">
+                <span class="logo-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="logo-name">BARBER<span>FLOW</span></span>
+            </a>
+            <p>O cuidado da barbearia, no seu dia a dia.</p>
+            <nav class="footer-social" aria-label="Redes sociais e contato">
+                <a
+                    class="social-link"
+                    href="https://wa.me/5582994114133"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Fale com a BarberFlow pelo WhatsApp"
+                >
+                    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                    <span>WhatsApp</span>
                 </a>
-
-                <p>
-                    Produtos para cuidar do seu estilo.
-                </p>
-
-            </div>
-
-
-            <div class="footer-links">
-
-                <a href="#">
-                    <i class="fa-brands fa-instagram"></i>
-                    Instagram
+                <a
+                    class="social-link"
+                    href="https://www.instagram.com/05.mtss/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Siga a BarberFlow no Instagram"
+                >
+                    <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                    <span>Instagram</span>
                 </a>
-
-                <a href="#">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    WhatsApp
-                </a>
-
-            </div>
-
+            </nav>
+            <a class="footer-top" href="#inicio">Voltar ao topo <i class="fa-solid fa-arrow-up" aria-hidden="true"></i></a>
         </div>
-
-
         <div class="footer-bottom">
-
-            <p>
-                © 2026 BarberFlow. Todos os direitos reservados.
-            </p>
-
+            <span>&copy; 2026 BarberFlow. Todos os direitos reservados.</span>
+            <span>BARBEARIA <i class="fa-solid fa-scissors" aria-hidden="true"></i> CUIDADO <i class="fa-solid fa-scissors" aria-hidden="true"></i> ESTILO</span>
         </div>
-
     </footer>
 
-
-    <!-- =========================
-         CARRINHO
-    ========================== -->
     <div class="cart-overlay" id="cart-overlay">
-
-        <div class="cart">
-
+        <section class="cart" role="dialog" aria-modal="true" aria-labelledby="cart-title">
             <div class="cart-header">
-
-                <h2>
-                    Seu carrinho
-                </h2>
-
-                <button
-                    class="close-cart"
-                    id="close-cart"
-                    aria-label="Fechar carrinho"
-                >
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-
-            </div>
-
-
-            <div
-                class="cart-items"
-                id="cart-items"
-            >
-                <!-- Produtos do carrinho -->
-            </div>
-
-
-            <div class="cart-footer">
-
-                <div class="cart-total">
-
-                    <span>Total</span>
-
-                    <strong id="cart-total">
-                        R$ 0,00
-                    </strong>
-
+                <div>
+                    <p class="eyebrow"><span></span> BARBERFLOW</p>
+                    <h2 id="cart-title">Sua sacola</h2>
                 </div>
-
-                <button
-                    class="checkout-button"
-                    id="checkout-button"
-                >
-                    Finalizar pedido
+                <button class="close-cart" id="close-cart" type="button" aria-label="Fechar sacola">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
-
             </div>
-
-        </div>
-
+            <div class="cart-items" id="cart-items" aria-live="polite"></div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total</span>
+                    <strong id="cart-total">R$ 0,00</strong>
+                </div>
+                <button class="checkout-button" id="checkout-button" type="button">
+                    Continuar pelo WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </button>
+                <p class="checkout-note">Pagamento combinado diretamente com a barbearia.</p>
+            </div>
+        </section>
     </div>
 
-
-    <!-- JavaScript -->
     <script src="app.js"></script>
-
 </body>
 </html>
