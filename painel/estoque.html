@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11110f">
+    <meta name="description" content="Acompanhe e atualize o estoque da loja BarberFlow.">
+    <title>Estoque | BarberFlow</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-modules.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="admin-page is-auth-pending" data-admin-page="estoque">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Menu administrativo">
+            <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
+                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-name">BARBER<span>FLOW</span></span>
+            </a>
+            <div class="admin-sidebar-label">MENU PRINCIPAL</div>
+            <nav class="admin-nav" aria-label="Navegação do painel">
+                <a class="admin-nav-link" href="admin.html"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Visão geral</span></a>
+                <a class="admin-nav-link" href="produtos.html"><i class="fa-solid fa-box" aria-hidden="true"></i><span>Produtos</span></a>
+                <a class="admin-nav-link" href="pedidos.html"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Pedidos</span></a>
+                <a class="admin-nav-link is-active" href="estoque.html" aria-current="page"><i class="fa-solid fa-warehouse" aria-hidden="true"></i><span>Estoque</span></a>
+            </nav>
+            <div class="admin-sidebar-bottom">
+                <div class="admin-sidebar-label">SUA LOJA</div>
+                <a class="admin-nav-link" href="../index.html"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Voltar para a loja</span></a>
+                <div class="admin-sidebar-foot"><span class="admin-status-dot" aria-hidden="true"></span>Painel administrativo</div>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div><p class="admin-breadcrumb">BARBERFLOW <span>/</span> OPERAÇÃO</p><h1>Estoque</h1></div>
+                <div class="admin-user"><span class="admin-user-avatar" aria-hidden="true">BF</span><span class="admin-user-copy"><strong>Administrador</strong><small>Acesso administrativo</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><button class="admin-logout" id="admin-logout" type="button" aria-label="Sair do painel" title="Sair do painel"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Sair</span></button></div>
+            </header>
+            <div class="admin-content">
+                <section class="admin-welcome admin-module-welcome">
+                    <div><p class="admin-eyebrow"><span></span> CONTROLE DE ESTOQUE</p><h2>Estoque sob <span>controle.</span></h2><p>Ajuste as quantidades e acompanhe produtos com poucas unidades.</p></div>
+                    <div class="admin-demo-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Alerta de estoque baixo: 5 ou menos</div>
+                </section>
+                <div class="admin-notice" id="admin-notice" role="status" aria-live="polite" hidden></div>
+                <section class="admin-metrics admin-stock-metrics" aria-label="Resumo do estoque">
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Produtos cadastrados</span><span class="admin-metric-icon"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="stock-product-count">0</strong><span class="admin-metric-caption">No catálogo</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Unidades em estoque</span><span class="admin-metric-icon"><i class="fa-solid fa-cubes" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="stock-unit-count">0</strong><span class="admin-metric-caption">Somatório das quantidades</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Estoque baixo</span><span class="admin-metric-icon is-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="stock-low-count">0</strong><span class="admin-metric-caption">Até 5 unidades</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Sem estoque</span><span class="admin-metric-icon is-warning"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="stock-out-count">0</strong><span class="admin-metric-caption">Quantidade igual a zero</span></article>
+                </section>
+                <section class="admin-panel admin-list-panel" aria-labelledby="stock-list-title">
+                    <div class="admin-panel-heading admin-list-heading"><div><h2 id="stock-list-title">Produtos em estoque</h2><p>Atualize a quantidade disponível para venda</p></div><label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="stock-search" type="search" placeholder="Buscar produto" aria-label="Buscar produto"></label></div>
+                    <div class="admin-table-wrap"><table class="admin-data-table"><thead><tr><th scope="col">Produto</th><th scope="col">Categoria</th><th scope="col">Disponível</th><th scope="col">Nível</th><th scope="col">Ajustar quantidade</th></tr></thead><tbody id="stock-table-body"></tbody></table></div>
+                    <div class="admin-empty-state" id="stock-empty" hidden><i class="fa-solid fa-box-open" aria-hidden="true"></i><strong>Nenhum produto cadastrado</strong><span>Cadastre produtos para controlar o estoque.</span><a class="admin-button admin-button-primary" href="produtos.html">Ir para produtos</a></div>
+                </section>
+                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span><span>Estoque compartilhado com a loja</span></footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="admin-guard.js"></script>
+    <script src="admin-modules.js"></script>
+</body>
+</html>

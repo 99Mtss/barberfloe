@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11110f">
+    <meta
+        name="description"
+        content="Painel administrativo BarberFlow."
+    >
+    <title>Painel administrativo | BarberFlow</title>
+
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body class="admin-page is-auth-pending">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Menu administrativo">
+            <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
+                <span class="admin-brand-mark" aria-hidden="true">
+                    <i class="fa-solid fa-scissors"></i>
+                </span>
+                <span class="admin-brand-name">BARBER<span>FLOW</span></span>
+            </a>
+
+            <div class="admin-sidebar-label">MENU PRINCIPAL</div>
+            <nav class="admin-nav" aria-label="Navegação do painel">
+                <a class="admin-nav-link is-active" href="#painel" aria-current="page">
+                    <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                    <span>Visão geral</span>
+                </a>
+                <a class="admin-nav-link" href="produtos.html">
+                    <i class="fa-solid fa-box" aria-hidden="true"></i>
+                    <span>Produtos</span>
+                </a>
+                <a class="admin-nav-link" href="pedidos.html">
+                    <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                    <span>Pedidos</span>
+                </a>
+                <a class="admin-nav-link" href="estoque.html">
+                    <i class="fa-solid fa-warehouse" aria-hidden="true"></i>
+                    <span>Estoque</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-bottom">
+                <div class="admin-sidebar-label">SUA LOJA</div>
+                <a class="admin-nav-link" href="../index.html">
+                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    <span>Voltar para a loja</span>
+                </a>
+                <div class="admin-sidebar-foot">
+                    <span class="admin-status-dot" aria-hidden="true"></span>
+                    Painel administrativo
+                </div>
+            </div>
+        </aside>
+
+        <main class="admin-main" id="painel">
+            <header class="admin-topbar">
+                <div>
+                    <p class="admin-breadcrumb">BARBERFLOW <span>/</span> PAINEL</p>
+                    <h1>Visão geral</h1>
+                </div>
+                <div class="admin-user">
+                    <span class="admin-user-avatar" aria-hidden="true">BF</span>
+                    <span class="admin-user-copy">
+                        <strong>Administrador</strong>
+                        <small>Acesso administrativo</small>
+                    </span>
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    <button class="admin-logout" id="admin-logout" type="button" aria-label="Sair do painel" title="Sair do painel">
+                        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                        <span>Sair</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <section class="admin-welcome" aria-labelledby="welcome-title">
+                    <div>
+                        <p class="admin-eyebrow"><span></span> PAINEL DE CONTROLE</p>
+                        <h2 id="welcome-title">Bem-vindo à <span>BarberFlow.</span></h2>
+                        <p>Acompanhe o movimento da sua loja em um só lugar.</p>
+                    </div>
+                    <div class="admin-demo-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Dados atualizados do Supabase</div>
+                </section>
+
+                <section class="admin-metrics" aria-label="Indicadores da loja">
+                    <article class="admin-metric-card">
+                        <div class="admin-metric-top">
+                            <span>Valor em pedidos no mês</span>
+                            <span class="admin-metric-icon"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+                        </div>
+                        <strong class="admin-metric-value" id="dashboard-month-total">R$ 0,00</strong>
+                        <span class="admin-metric-caption">Desconsidera pedidos cancelados</span>
+                    </article>
+                    <article class="admin-metric-card">
+                        <div class="admin-metric-top">
+                            <span>Pedidos</span>
+                            <span class="admin-metric-icon"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
+                        </div>
+                        <strong class="admin-metric-value" id="dashboard-order-count">0</strong>
+                        <span class="admin-metric-caption">Pedidos neste mês</span>
+                    </article>
+                    <article class="admin-metric-card">
+                        <div class="admin-metric-top">
+                            <span>Produtos ativos</span>
+                            <span class="admin-metric-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+                        </div>
+                        <strong class="admin-metric-value" id="dashboard-product-count">0</strong>
+                        <span class="admin-metric-caption">Produtos ativos</span>
+                    </article>
+                    <article class="admin-metric-card">
+                        <div class="admin-metric-top">
+                            <span>Estoque baixo</span>
+                            <span class="admin-metric-icon is-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+                        </div>
+                        <strong class="admin-metric-value" id="dashboard-low-stock">0</strong>
+                        <span class="admin-metric-caption">Até 5 unidades</span>
+                    </article>
+                </section>
+
+                <section class="admin-dashboard-grid" aria-label="Resumo da loja">
+                    <article class="admin-panel admin-sales-panel">
+                        <div class="admin-panel-heading">
+                            <div>
+                                <h2>Pedidos</h2>
+                                <p>Pedidos recebidos nos últimos 7 dias</p>
+                            </div>
+                            <span class="admin-period">Esta semana <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="admin-chart" id="dashboard-chart" role="img" aria-label="Pedidos recebidos nos últimos 7 dias">
+                            <div class="admin-chart-bars" aria-hidden="true" id="dashboard-chart-bars"></div>
+                        </div>
+                    </article>
+
+                    <article class="admin-panel admin-shortcuts-panel">
+                        <div class="admin-panel-heading">
+                            <div>
+                                <h2>Acesso rápido</h2>
+                                <p>Atalhos do painel</p>
+                            </div>
+                            <span class="admin-heading-icon"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="admin-shortcuts">
+                            <a class="admin-shortcut" href="produtos.html">
+                                <span class="admin-shortcut-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                                <span><strong>Novo produto</strong><small>Abrir cadastro de produto</small></span>
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            <a class="admin-shortcut" href="pedidos.html">
+                                <span class="admin-shortcut-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
+                                <span><strong>Ver pedidos</strong><small>Acompanhar pedidos</small></span>
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            <a class="admin-shortcut" href="estoque.html">
+                                <span class="admin-shortcut-icon"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+                                <span><strong>Conferir estoque</strong><small>Atualizar quantidades</small></span>
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="admin-panel admin-orders-panel" aria-labelledby="orders-title">
+                    <div class="admin-panel-heading">
+                        <div>
+                            <h2 id="orders-title">Pedidos recentes</h2>
+                            <p>Pedidos recentes registrados na loja</p>
+                        </div>
+                        <span class="admin-view-all">Ver todos <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                    </div>
+                    <div class="admin-table-wrap">
+                        <table class="admin-orders-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Pedido</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Data</th>
+                                    <th scope="col">Valor</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-recent-orders">
+                                <tr><td class="admin-empty-row" colspan="5">Carregando pedidos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <footer class="admin-footer">
+                    <span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span>
+                    <span>Dados compartilhados com a loja</span>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="admin-guard.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

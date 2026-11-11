@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11110f">
+    <meta name="description" content="Acesso administrativo BarberFlow.">
+    <title>Acesso do responsável | BarberFlow</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-modules.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="admin-page admin-login-page">
+    <main class="admin-login-card">
+        <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
+            <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+            <span class="admin-brand-name">BARBER<span>FLOW</span></span>
+        </a>
+        <p class="admin-eyebrow"><span></span> ÁREA RESTRITA</p>
+        <h1>Acesso do responsável</h1>
+        <p class="admin-login-description">Entre com o e-mail e a senha cadastrados para administrar a loja.</p>
+        <div class="admin-notice is-error" id="auth-message" role="alert" aria-live="polite" hidden></div>
+        <form class="admin-login-form" id="login-form" hidden>
+            <label class="admin-field">E-mail<input name="email" type="email" autocomplete="username" required maxlength="254" placeholder="voce@exemplo.com"></label>
+            <label class="admin-field">Senha<input name="password" type="password" autocomplete="current-password" required minlength="8"></label>
+            <button class="admin-button admin-button-primary" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>Entrar no painel</button>
+        </form>
+        <a class="admin-login-back" href="../index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para a loja</a>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

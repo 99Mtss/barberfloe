@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11110f">
+    <meta name="description" content="Acompanhe os pedidos feitos na loja BarberFlow.">
+    <title>Pedidos | BarberFlow</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-modules.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="admin-page is-auth-pending" data-admin-page="pedidos">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Menu administrativo">
+            <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
+                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-name">BARBER<span>FLOW</span></span>
+            </a>
+            <div class="admin-sidebar-label">MENU PRINCIPAL</div>
+            <nav class="admin-nav" aria-label="Navegação do painel">
+                <a class="admin-nav-link" href="admin.html"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Visão geral</span></a>
+                <a class="admin-nav-link" href="produtos.html"><i class="fa-solid fa-box" aria-hidden="true"></i><span>Produtos</span></a>
+                <a class="admin-nav-link is-active" href="pedidos.html" aria-current="page"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Pedidos</span></a>
+                <a class="admin-nav-link" href="estoque.html"><i class="fa-solid fa-warehouse" aria-hidden="true"></i><span>Estoque</span></a>
+            </nav>
+            <div class="admin-sidebar-bottom">
+                <div class="admin-sidebar-label">SUA LOJA</div>
+                <a class="admin-nav-link" href="../index.html"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Voltar para a loja</span></a>
+                <div class="admin-sidebar-foot"><span class="admin-status-dot" aria-hidden="true"></span>Painel administrativo</div>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div><p class="admin-breadcrumb">BARBERFLOW <span>/</span> VENDAS</p><h1>Pedidos</h1></div>
+                <div class="admin-user"><span class="admin-user-avatar" aria-hidden="true">BF</span><span class="admin-user-copy"><strong>Administrador</strong><small>Acesso administrativo</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><button class="admin-logout" id="admin-logout" type="button" aria-label="Sair do painel" title="Sair do painel"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Sair</span></button></div>
+            </header>
+            <div class="admin-content">
+                <section class="admin-welcome admin-module-welcome">
+                    <div><p class="admin-eyebrow"><span></span> ACOMPANHAMENTO DE VENDAS</p><h2>Seus pedidos, <span>em dia.</span></h2><p>Consulte os pedidos recebidos e atualize o andamento.</p></div>
+                    <div class="admin-demo-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Pedidos compartilhados com a loja</div>
+                </section>
+                <div class="admin-notice" id="admin-notice" role="status" aria-live="polite" hidden></div>
+                <section class="admin-metrics admin-order-metrics" aria-label="Resumo de pedidos">
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Total de pedidos</span><span class="admin-metric-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-total-count">0</strong><span class="admin-metric-caption">Todos os pedidos registrados</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Pendentes</span><span class="admin-metric-icon is-warning"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-pending-count">0</strong><span class="admin-metric-caption">Aguardando atendimento</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Concluídos</span><span class="admin-metric-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-completed-count">0</strong><span class="admin-metric-caption">Pedidos finalizados</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Cancelados</span><span class="admin-metric-icon"><i class="fa-solid fa-ban" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-cancelled-count">0</strong><span class="admin-metric-caption">Pedidos cancelados</span></article>
+                </section>
+                <section class="admin-panel admin-list-panel" aria-labelledby="orders-list-title">
+                    <div class="admin-panel-heading admin-list-heading"><div><h2 id="orders-list-title">Todos os pedidos</h2><p>Pedidos registrados pela loja</p></div><div class="admin-list-controls"><label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="order-search" type="search" placeholder="Buscar pedido ou cliente" aria-label="Buscar pedido ou cliente"></label><label class="admin-filter-label"><span class="sr-only">Filtrar por status</span><select id="order-status-filter" aria-label="Filtrar por status"><option value="all">Todos os status</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></label></div></div>
+                    <div class="admin-table-wrap"><table class="admin-data-table admin-orders-data-table"><thead><tr><th scope="col">Pedido</th><th scope="col">Cliente</th><th scope="col">Itens</th><th scope="col">Data</th><th scope="col">Total</th><th scope="col">Status</th></tr></thead><tbody id="orders-table-body"></tbody></table></div>
+                    <div class="admin-empty-state" id="orders-empty" hidden><i class="fa-solid fa-receipt" aria-hidden="true"></i><strong>Nenhum pedido encontrado</strong><span>Os pedidos feitos na loja aparecerão aqui.</span></div>
+                </section>
+                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span><span>Pedidos sincronizados com a loja</span></footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="admin-guard.js"></script>
+    <script src="admin-modules.js"></script>
+</body>
+</html>

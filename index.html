@@ -238,6 +238,8 @@
                     <span>Total</span>
                     <strong id="cart-total">R$ 0,00</strong>
                 </div>
+                <div class="turnstile-widget" id="turnstile-widget" aria-label="Verificação de segurança"></div>
+                <p class="turnstile-message" id="turnstile-message" role="status" aria-live="polite" hidden></p>
                 <button class="checkout-button" id="checkout-button" type="button">
                     Continuar pelo WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </button>
@@ -246,6 +248,10 @@
         </section>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script defer src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
     <script src="app.js"></script>
 </body>
 </html>

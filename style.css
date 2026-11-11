@@ -1255,6 +1255,20 @@ img {
     font-size: 20px;
 }
 
+.turnstile-widget {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 10px;
+}
+
+.turnstile-message {
+    margin: 0 0 10px;
+    color: var(--yellow-bright);
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+}
+
 .checkout-button {
     display: flex;
     width: 100%;
