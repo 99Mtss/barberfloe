@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const MAX_BODY_BYTES = 16_384;
 const MAX_ITEMS = 20;
 const MAX_QUANTITY = 99;
+const MAX_ORDERS_PER_WINDOW = 3;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function getAllowedOrigins(): Set<string> {
@@ -51,12 +52,18 @@ Deno.serve(async request => {
         return response({ error: "Método não permitido." }, 405, origin);
     }
 
-    const siteVerifySecret = Deno.env.get("TURNSTILE_SECRET_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!siteVerifySecret || !supabaseUrl || !serviceRoleKey) {
-        console.error("Configuração ausente: TURNSTILE_SECRET_KEY, SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY.");
+    if (!supabaseUrl || !serviceRoleKey) {
+        console.error("Configuração ausente: SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY.");
         return response({ error: "O serviço de pedidos não está configurado." }, 503, origin);
+    }
+
+    const clientIp = request.headers.get("x-real-ip")?.trim()
+        || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    if (!clientIp || clientIp.length > 64) {
+        console.error("Não foi possível identificar o IP do cliente para limitar pedidos.");
+        return response({ error: "Não foi possível validar o limite de pedidos. Tente novamente mais tarde." }, 503, origin);
     }
 
     const contentLength = Number(request.headers.get("content-length") || 0);
@@ -82,14 +89,10 @@ Deno.serve(async request => {
 
     const orderPayload = payload as {
         customer_name?: unknown;
-        captcha_token?: unknown;
         items?: unknown;
     };
     const customerName = typeof orderPayload.customer_name === "string"
         ? orderPayload.customer_name.trim()
-        : "";
-    const captchaToken = typeof orderPayload.captcha_token === "string"
-        ? orderPayload.captcha_token
         : "";
     const items = orderPayload.items;
 
@@ -97,14 +100,8 @@ Deno.serve(async request => {
         return response({ error: "Informe um nome com até 120 caracteres." }, 400, origin);
     }
 
-    if (
-        !captchaToken
-        || captchaToken.length > 2048
-        || !Array.isArray(items)
-        || items.length < 1
-        || items.length > MAX_ITEMS
-    ) {
-        return response({ error: "Conclua a verificação de segurança e revise sua sacola." }, 400, origin);
+    if (!Array.isArray(items) || items.length < 1 || items.length > MAX_ITEMS) {
+        return response({ error: "Revise os itens do seu pedido." }, 400, origin);
     }
 
     const requestedItems = new Map<string, number>();
@@ -138,51 +135,24 @@ Deno.serve(async request => {
         requestedItems.set(productId, quantity);
     }
 
-    const turnstileBody = new URLSearchParams({
-        secret: siteVerifySecret,
-        response: captchaToken,
-        idempotency_key: crypto.randomUUID()
-    });
-
+    let ipHash: string;
     try {
-        const verificationResponse = await fetch(
-            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: turnstileBody,
-                signal: AbortSignal.timeout(8000)
-            }
+        const hmacKey = await crypto.subtle.importKey(
+            "raw",
+            new TextEncoder().encode(serviceRoleKey),
+            { name: "HMAC", hash: "SHA-256" },
+            false,
+            ["sign"]
         );
-
-        if (!verificationResponse.ok) {
-            console.error("Turnstile verification endpoint returned", verificationResponse.status);
-            return response({ error: "Não foi possível verificar a segurança. Tente novamente." }, 502, origin);
-        }
-
-        const verification = await verificationResponse.json();
-        const allowedHostnames = new Set(
-            (Deno.env.get("TURNSTILE_ALLOWED_HOSTNAMES") || "")
-                .split(",")
-                .map(hostname => hostname.trim().toLowerCase())
-                .filter(Boolean)
+        const digest = await crypto.subtle.sign(
+            "HMAC",
+            hmacKey,
+            new TextEncoder().encode(clientIp)
         );
-        const originHostname = new URL(origin).hostname.toLowerCase();
-        const hostnameAllowed = allowedHostnames.size > 0
-            ? allowedHostnames.has(String(verification.hostname || "").toLowerCase())
-            : String(verification.hostname || "").toLowerCase() === originHostname;
-
-        if (
-            !verification.success
-            || verification.action !== "checkout"
-            || !hostnameAllowed
-        ) {
-            console.warn("Turnstile rejected a checkout request.", verification["error-codes"] || []);
-            return response({ error: "A verificação de segurança expirou ou não foi aprovada. Tente novamente." }, 400, origin);
-        }
+        ipHash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
     } catch (error) {
-        console.error("Turnstile verification failed:", error);
-        return response({ error: "Não foi possível verificar a segurança. Tente novamente." }, 502, origin);
+        console.error("Could not hash the client IP for order rate limiting:", error);
+        return response({ error: "O serviço de pedidos está temporariamente indisponível." }, 503, origin);
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -192,16 +162,31 @@ Deno.serve(async request => {
         }
     });
 
-    const { data, error } = await supabase.rpc("create_barberflow_order", {
+    const { data, error } = await supabase.rpc("create_limited_barberflow_order", {
         p_customer_name: customerName,
         p_items: Array.from(requestedItems, ([product_id, quantity]) => ({
             product_id,
             quantity
-        }))
+        })),
+        p_ip_hash: ipHash
     });
 
     if (error) {
-        console.error("Order RPC rejected a verified request:", error);
+        console.error("Order RPC rejected a request:", error);
+        if (error.code === "P4290") {
+            return response(
+                { error: `Limite de ${MAX_ORDERS_PER_WINDOW} pedidos a cada 15 minutos atingido. Aguarde antes de tentar novamente.` },
+                429,
+                origin
+            );
+        }
+        if (error.code === "PGRST202" || error.code === "42883") {
+            return response(
+                { error: "O checkout ainda não foi atualizado no Supabase. Execute a migração 20261112_order_rate_limit.sql e publique novamente a Edge Function create-order." },
+                503,
+                origin
+            );
+        }
         const status = error.code === "P0001" || error.code === "23514" ? 400 : 500;
         const message = status === 400
             ? error.message

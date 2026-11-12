@@ -174,12 +174,16 @@
                         <i class="fa-brands fa-google-play" aria-hidden="true"></i>
                         <span><small>DISPONÍVEL EM</small><strong>Google Play</strong></span>
                     </a>
-                    <span class="store-badge" aria-disabled="true">
+                    <a
+                        class="store-badge store-badge-link"
+                        href="https://apps.apple.com/br/app/barber-luz/id1557346006"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
                         <i class="fa-brands fa-apple" aria-hidden="true"></i>
-                        <span><small>DISPONIVEL NA</small><strong>App Store em breve</strong></span>
-                    </span>
+                        <span><small>BAIXE NA</small><strong>App Store</strong></span>
+                    </a>
                 </div>
-                <p class="app-note">Os links de download serão adicionados quando o aplicativo estiver publicado.</p>
             </div>
         </section>
     </main>
@@ -238,8 +242,6 @@
                     <span>Total</span>
                     <strong id="cart-total">R$ 0,00</strong>
                 </div>
-                <div class="turnstile-widget" id="turnstile-widget" aria-label="Verificação de segurança"></div>
-                <p class="turnstile-message" id="turnstile-message" role="status" aria-live="polite" hidden></p>
                 <button class="checkout-button" id="checkout-button" type="button">
                     Continuar pelo WhatsApp <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </button>
@@ -251,7 +253,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-client.js"></script>
-    <script defer src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
     <script src="app.js"></script>
 </body>
 </html>

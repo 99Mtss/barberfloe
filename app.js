@@ -16,10 +16,6 @@ let produtos = [];
 let carrinho = [];
 let categoriaSelecionada = "todas";
 let erroProdutos = "";
-let turnstileWidgetId = null;
-let turnstileToken = "";
-let turnstileError = "";
-let turnstileLoadHandler = null;
 
 
 /* =========================================================
@@ -72,7 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderizarCarrinho();
     configurarEventos();
     configurarFiltrosCategoria();
-    configurarCaptcha();
 
     if (window.barberflow && window.barberflow.isConfigured) {
         window.barberflow.client
@@ -907,125 +902,7 @@ function abrirCarrinho() {
     document.body.classList.add(
         "cart-open"
     );
-    renderizarCaptcha();
 
-}
-
-
-function configurarCaptcha() {
-    const widget = document.querySelector("#turnstile-widget");
-    const message = document.querySelector("#turnstile-message");
-    const config = window.BARBERFLOW_SUPABASE_CONFIG || {};
-    const isRemoteStore = Boolean(window.barberflow && window.barberflow.isConfigured);
-
-    if (!widget || !isRemoteStore) {
-        return;
-    }
-
-    if (!config.turnstileSiteKey) {
-        turnstileError = "A verificação de segurança ainda não foi configurada.";
-        if (message) {
-            message.textContent = turnstileError;
-            message.hidden = false;
-        }
-        return;
-    }
-
-    if (message) {
-        message.hidden = true;
-    }
-
-    turnstileLoadHandler = () => {
-        turnstileLoadHandler = null;
-        renderizarCaptcha();
-    };
-
-    if (window.turnstile) {
-        renderizarCaptcha();
-        return;
-    }
-
-    const script = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
-    if (script) {
-        script.addEventListener("load", turnstileLoadHandler, { once: true });
-        script.addEventListener("error", () => {
-            turnstileError = "Não foi possível carregar a verificação de segurança. Verifique sua conexão e recarregue a página.";
-            if (message) {
-                message.textContent = turnstileError;
-                message.hidden = false;
-            }
-        }, { once: true });
-    }
-}
-
-
-function renderizarCaptcha() {
-    const widget = document.querySelector("#turnstile-widget");
-    const message = document.querySelector("#turnstile-message");
-    const config = window.BARBERFLOW_SUPABASE_CONFIG || {};
-    const isRemoteStore = Boolean(window.barberflow && window.barberflow.isConfigured);
-
-    if (!widget || !isRemoteStore || !config.turnstileSiteKey) {
-        return;
-    }
-
-    if (!window.turnstile) {
-        return;
-    }
-
-    turnstileError = "";
-    if (message) {
-        message.hidden = true;
-    }
-
-    if (turnstileWidgetId !== null) {
-        return;
-    }
-
-    try {
-        turnstileWidgetId = window.turnstile.render(widget, {
-            sitekey: config.turnstileSiteKey,
-            action: "checkout",
-            callback: token => {
-                turnstileToken = token;
-                turnstileError = "";
-                if (message) {
-                    message.hidden = true;
-                }
-            },
-            "expired-callback": () => {
-                turnstileToken = "";
-                turnstileError = "A verificação expirou. Conclua-a novamente.";
-                if (message) {
-                    message.textContent = turnstileError;
-                    message.hidden = false;
-                }
-            },
-            "error-callback": () => {
-                turnstileToken = "";
-                turnstileError = "A verificação não foi concluída. Tente novamente.";
-                if (message) {
-                    message.textContent = turnstileError;
-                    message.hidden = false;
-                }
-            }
-        });
-    } catch (erro) {
-        console.error("Erro ao iniciar a verificação Turnstile:", erro);
-        turnstileError = "Não foi possível iniciar a verificação de segurança.";
-        if (message) {
-            message.textContent = turnstileError;
-            message.hidden = false;
-        }
-    }
-}
-
-
-function resetarCaptcha() {
-    turnstileToken = "";
-    if (turnstileWidgetId !== null && window.turnstile) {
-        window.turnstile.reset(turnstileWidgetId);
-    }
 }
 
 
@@ -1138,17 +1015,6 @@ async function finalizarPedido() {
     }
 
     const pedidoRemoto = Boolean(window.barberflow && window.barberflow.isConfigured);
-    if (pedidoRemoto && !turnstileToken) {
-        const message = document.querySelector("#turnstile-message");
-        if (message) {
-            message.textContent = turnstileError
-                || "Conclua a verificação de segurança antes de continuar.";
-            message.hidden = false;
-        }
-        abrirCarrinho();
-        return;
-    }
-
     const nomeCliente = prompt("Digite seu nome:");
     if (!nomeCliente || !nomeCliente.trim()) {
         alert("Digite seu nome para continuar.");
@@ -1185,7 +1051,6 @@ async function finalizarPedido() {
                 {
                     body: {
                         customer_name: nomeCliente.trim(),
-                        captcha_token: turnstileToken,
                         items: itensSolicitados.map(item => ({
                             product_id: item.id,
                             quantity: item.quantidade
@@ -1251,6 +1116,23 @@ async function finalizarPedido() {
         }
     } catch (erro) {
         console.error("Erro ao registrar pedido:", erro);
+        let mensagemErro = erro instanceof Error ? erro.message : "";
+        if (
+            erro
+            && typeof erro === "object"
+            && "context" in erro
+            && erro.context instanceof Response
+        ) {
+            try {
+                const resposta = await erro.context.clone().json();
+                if (typeof resposta.error === "string") {
+                    mensagemErro = resposta.error;
+                }
+            } catch (erroResposta) {
+                console.error("Não foi possível ler o erro retornado pelo serviço de pedidos:", erroResposta);
+            }
+        }
+
         if (pedidoRemoto) {
             try {
                 await carregarProdutos();
@@ -1260,15 +1142,14 @@ async function finalizarPedido() {
             }
         }
         alert(
-            erro.message && /dispon[ií]vel|estoque/i.test(erro.message)
+            mensagemErro && /dispon[ií]vel|estoque/i.test(mensagemErro)
                 ? "Um produto acabou de ficar indisponível ou não há estoque suficiente. Atualizamos a loja; revise sua sacola."
-                : "Não foi possível registrar o pedido. Tente novamente."
+                : mensagemErro || "Não foi possível registrar o pedido. Tente novamente."
         );
         if (checkoutButton) {
             checkoutButton.disabled = false;
             checkoutButton.innerHTML = originalLabel;
         }
-        resetarCaptcha();
         renderizarCarrinho();
         return;
     }
@@ -1287,9 +1168,8 @@ async function finalizarPedido() {
         "",
         `*Total:* ${formatarPreco(total)}`
     ].join("\n");
-
     carrinho = [];
-    resetarCaptcha();
+    carrinho = [];
     renderizarCarrinho();
     renderizarProdutos();
     fecharCarrinho();
