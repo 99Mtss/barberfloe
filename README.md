@@ -50,10 +50,24 @@ Os dois endereços usam o mesmo domínio e apontam para o mesmo projeto Supabase
 
    A loja e o painel usam a mesma origem, então basta cadastrá-la uma vez. `ALLOWED_ORIGINS` recebe a origem completa (protocolo e domínio). O Supabase fornece `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` à Edge Function automaticamente. Nunca publique nem compartilhe a chave `service_role`.
 2. No **SQL Editor**, execute uma vez [`supabase/migrations/20261112_order_rate_limit.sql`](./supabase/migrations/20261112_order_rate_limit.sql). Ela bloqueia chamadas públicas diretas à rotina de pedidos e cria o limite usado pela Edge Function. Não execute novamente `supabase/schema.sql` em um banco já configurado.
-3. Publique a Edge Function atualizada:
+3. No **SQL Editor**, execute uma vez [`supabase/migrations/20261113_store_promotions_coupons_settings.sql`](./supabase/migrations/20261113_store_promotions_coupons_settings.sql). Ela adiciona promoções por produto, cupons, foto de perfil da loja e as rotinas de prévia e criação de pedidos com descontos. Execute depois da migration de limite de pedidos.
+4. Publique a Edge Function atualizada:
 
    ```powershell
    supabase functions deploy create-order
    ```
 
-4. Publique o site e teste o checkout: um pedido deve ser registrado, o estoque deve ser atualizado e o WhatsApp deve abrir com os dados do pedido.
+5. Publique o site e teste o checkout: um pedido deve ser registrado, o estoque deve ser atualizado e o WhatsApp deve abrir com os dados e descontos calculados no servidor.
+
+## Configuração da loja
+
+1. Depois de aplicar a migration de cupons e promoções, abra **Configuração** no painel para criar, editar, ativar/desativar ou excluir cupons percentuais.
+2. Na mesma página, configure promoções percentuais e o período opcional de cada produto. Os cupons não são aplicados aos produtos em promoção.
+3. A seção **Barbearia** reúne a galeria de até cinco fotos, e **Foto de perfil** permite enviar, pré-visualizar e remover a imagem. A foto de perfil aparece no destaque visual do topo da loja.
+
+## Galeria da barbearia
+
+1. No **SQL Editor** do Supabase, execute uma vez [`supabase/migrations/20261113_barbershop_gallery.sql`](./supabase/migrations/20261113_barbershop_gallery.sql). A migration cria a galeria, o bucket público de imagens e as políticas que permitem leitura pública e gerenciamento somente pelo responsável autorizado.
+2. Execute também [`supabase/migrations/20261113_barbershop_gallery_limit.sql`](./supabase/migrations/20261113_barbershop_gallery_limit.sql) para impor o limite de cinco fotos no banco.
+3. No painel, abra **Configuração → Barbearia**, envie até cinco fotos do espaço e, se quiser, informe uma descrição para cada imagem. Cada arquivo pode ter até 5 MB e ser JPG, PNG, WebP ou GIF.
+4. As fotos publicadas aparecem automaticamente na seção da barbearia na loja. Ao clicar em uma foto, ela abre ampliada com sua descrição. A localização abre o ponto compartilhado no Google Maps.

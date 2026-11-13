@@ -64,33 +64,18 @@
                 </div>
             </div>
 
-            <div class="hero-art" aria-hidden="true">
-                <div class="hero-art-ring"></div>
-                <div class="hero-art-label">BARBER<br><span>FLOW</span></div>
-                <div class="hero-art-tool">
-                    <i class="fa-solid fa-scissors"></i>
+            <div class="hero-art">
+                <img id="store-profile-image" class="hero-profile-image" alt="Imagem de perfil da BarberFlow" hidden>
+                <div class="hero-art-decoration" aria-hidden="true">
+                    <div class="hero-art-ring"></div>
+                    <div class="hero-art-label">BARBER<br><span>FLOW</span></div>
+                    <div class="hero-art-tool">
+                        <i class="fa-solid fa-scissors"></i>
+                    </div>
+                    <div class="hero-art-caption">ESTILO EM CADA DETALHE</div>
+                    <div class="hero-art-stripe"></div>
                 </div>
-                <div class="hero-art-caption">ESTILO EM CADA DETALHE</div>
-                <div class="hero-art-stripe"></div>
             </div>
-        </section>
-
-        <section class="category-strip" aria-label="Categorias da loja">
-            <a class="category-card" href="#produtos" data-category="pomadas">
-                <span class="category-icon"><i class="fa-solid fa-pump-soap" aria-hidden="true"></i></span>
-                <span><strong>Finalização</strong><small>Pomadas e modeladores</small></span>
-                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
-            </a>
-            <a class="category-card" href="#produtos" data-category="shampoo">
-                <span class="category-icon"><i class="fa-solid fa-droplet" aria-hidden="true"></i></span>
-                <span><strong>Cabelo</strong><small>Cuidado para os fios</small></span>
-                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
-            </a>
-            <a class="category-card" href="#produtos" data-category="barba">
-                <span class="category-icon"><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span>
-                <span><strong>Barba</strong><small>Seu ritual completo</small></span>
-                <i class="fa-solid fa-arrow-up-right-from-square category-arrow" aria-hidden="true"></i>
-            </a>
         </section>
 
         <section class="products-section section-shell" id="produtos" aria-labelledby="products-title">
@@ -99,7 +84,7 @@
                     <p class="eyebrow"><span></span> ESCOLHA DO BARBEIRO</p>
                     <h2 id="products-title">Cuide do visual <span>em casa.</span></h2>
                     <p class="section-description">
-                        Pomadas, cremes e cuidados para cabelo e barba.
+                        Pomadas, cuidados capilares e produtos para barba.
                     </p>
                 </div>
                 <span class="section-stamp"><i class="fa-solid fa-scissors" aria-hidden="true"></i> SELEÇÃO BARBERFLOW</span>
@@ -118,26 +103,40 @@
         </section>
 
         <section class="barbershop section-shell" id="barbearia" aria-labelledby="barbershop-title">
-            <div class="barbershop-mark" aria-hidden="true">
-                <span class="barber-pole"><i class="fa-solid fa-scissors"></i></span>
-            </div>
             <div class="barbershop-copy">
-                <p class="eyebrow"><span></span> MAIS QUE UM CORTE</p>
-                <h2 id="barbershop-title">Barbearia e cuidado.<br><span>No seu estilo.</span></h2>
+                <p class="eyebrow"><span></span> NOSSA BARBEARIA</p>
+                <h2 id="barbershop-title">Estilo e acolhimento<br><span>em harmonia.</span></h2>
                 <p>
-                    A experiência da barbearia continua depois do corte.
-                    Encontre produtos para manter seu visual e use o aplicativo
-                    para marcar seu próximo horário com os barbeiros.
+                    À frente da barbearia está o fundador @manoeldaluz.com.br.
+                    Em União dos Palmares, Alagoas, a BarberFlow combina estilo,
+                    cuidado e acolhimento em cada visita.
                 </p>
-                <a class="text-link" href="#app">
-                    Conheça o aplicativo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                </a>
+                <div class="barbershop-actions">
+                    <a class="text-link" href="https://maps.app.goo.gl/nDWgRVaEq1DsrTTM9" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        Ver localização no Google Maps
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    </a>
+                    <a class="text-link" href="#app">
+                        Agende seu horário <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
             </div>
-            <div class="barbershop-detail" aria-hidden="true">
-                <span>BF</span>
-                <small>BARBERFLOW<br>BARBEARIA</small>
+            <div class="barbershop-gallery-wrap">
+                <div class="barbershop-gallery" id="barbershop-gallery" aria-label="Fotos da barbearia"></div>
+                <p class="barbershop-gallery-empty" id="barbershop-gallery-empty">
+                    <i class="fa-regular fa-images" aria-hidden="true"></i>
+                    Em breve, fotos da nossa barbearia.
+                </p>
             </div>
         </section>
+        <dialog class="barbershop-photo-viewer" id="barbershop-photo-viewer" aria-label="Foto da barbearia">
+            <button class="barbershop-photo-viewer-close" id="barbershop-photo-viewer-close" type="button" aria-label="Fechar foto">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <img id="barbershop-photo-viewer-image" src="" alt="">
+            <p id="barbershop-photo-viewer-description"></p>
+        </dialog>
 
         <section class="app-download" id="app" aria-labelledby="app-title">
             <div class="app-visual" aria-hidden="true">
@@ -238,6 +237,26 @@
             </div>
             <div class="cart-items" id="cart-items" aria-live="polite"></div>
             <div class="cart-footer">
+                <div class="cart-coupon">
+                    <label for="coupon-code">Cupom de desconto</label>
+                    <div class="cart-coupon-controls">
+                        <input id="coupon-code" type="text" maxlength="30" autocomplete="off" placeholder="Digite seu cupom">
+                        <button id="apply-coupon" type="button">Aplicar</button>
+                    </div>
+                    <p class="cart-coupon-feedback" id="coupon-feedback" aria-live="polite"></p>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">R$ 0,00</span>
+                </div>
+                <div class="cart-summary-row cart-discount-row" id="promotion-discount-row" hidden>
+                    <span>Promoções</span>
+                    <span id="promotion-discount">− R$ 0,00</span>
+                </div>
+                <div class="cart-summary-row cart-discount-row" id="coupon-discount-row" hidden>
+                    <span>Cupom</span>
+                    <span id="coupon-discount">− R$ 0,00</span>
+                </div>
                 <div class="cart-total">
                     <span>Total</span>
                     <strong id="cart-total">R$ 0,00</strong>
@@ -253,6 +272,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-client.js"></script>
+    <script src="store-profile.js"></script>
+    <script src="barbershop.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

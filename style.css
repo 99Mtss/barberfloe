@@ -309,6 +309,32 @@ img {
         radial-gradient(ellipse at 50% 46%, #28271e 0, #181814 57%, #131310 100%);
 }
 
+.hero-art.has-profile-image {
+    min-height: 0;
+    width: min(100%, 380px);
+    aspect-ratio: 3 / 4;
+    justify-self: center;
+    background: #11110f;
+}
+
+.hero-art.has-profile-image::before,
+.hero-art.has-profile-image::after {
+    display: none;
+}
+
+.hero-profile-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hero-profile-image[hidden],
+.hero-art-decoration[hidden] {
+    display: none;
+}
+
 .hero-art::before,
 .hero-art::after {
     position: absolute;
@@ -653,6 +679,19 @@ img {
     text-transform: uppercase;
 }
 
+.product-promotion-badge {
+    display: table;
+    margin: -2px 0 8px;
+    padding: 4px 7px;
+    border-radius: 2px;
+    background: rgba(211, 103, 91, 0.14);
+    color: #efaaa1;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
 .product-description {
     min-height: 35px;
     margin: 0 0 14px;
@@ -672,6 +711,19 @@ img {
     color: var(--yellow);
     font-size: 15px;
     font-weight: 700;
+}
+
+.product-prices {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.product-prices s,
+.cart-item-info s {
+    color: var(--text-muted);
+    font-size: 10px;
 }
 
 .add-product {
@@ -698,41 +750,20 @@ img {
 }
 
 .barbershop {
-    position: relative;
     display: grid;
-    min-height: 300px;
-    grid-template-columns: 0.8fr 1.4fr 0.6fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     align-items: center;
-    gap: 42px;
+    gap: 44px;
     margin-bottom: 110px;
-    padding: 44px 7%;
-    overflow: hidden;
+    padding: 46px 6%;
     border: 1px solid var(--border);
     background:
-        radial-gradient(ellipse at 17% 110%, rgba(243, 198, 35, 0.13), transparent 42%),
+        radial-gradient(ellipse at 10% 110%, rgba(243, 198, 35, 0.12), transparent 42%),
         var(--background-raised);
 }
 
-.barbershop-mark {
-    display: grid;
-    min-height: 185px;
-    place-items: center;
-    border: 1px solid rgba(243, 198, 35, 0.24);
-    background:
-        repeating-linear-gradient(135deg, rgba(243, 198, 35, 0.08) 0 9px, transparent 9px 18px);
-}
-
-.barber-pole {
-    display: grid;
-    width: 106px;
-    height: 106px;
-    place-items: center;
-    border: 1px solid var(--yellow);
-    border-radius: 50%;
-    background: #171712;
-    color: var(--yellow);
-    font-size: 47px;
-    transform: rotate(-15deg);
+.barbershop-copy {
+    min-width: 0;
 }
 
 .barbershop-copy .eyebrow {
@@ -745,10 +776,16 @@ img {
 
 .barbershop-copy > p:not(.eyebrow) {
     max-width: 500px;
-    margin: 14px 0 19px;
+    margin: 14px 0 20px;
     color: var(--text-muted);
     font-size: 12px;
     line-height: 1.8;
+}
+
+.barbershop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
 }
 
 .text-link {
@@ -768,27 +805,117 @@ img {
     transform: translateX(4px);
 }
 
-.barbershop-detail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.barbershop-gallery-wrap {
+    min-width: 0;
+}
+
+.barbershop-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
-    color: var(--yellow);
+}
+
+.barbershop-gallery-item {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(244, 241, 232, 0.12);
+    background: #141411;
+    cursor: zoom-in;
+}
+
+.barbershop-gallery-item:focus-visible {
+    outline: 2px solid var(--yellow);
+    outline-offset: 3px;
+}
+
+.barbershop-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 220ms ease, filter 220ms ease;
+}
+
+.barbershop-gallery-item:hover img {
+    transform: scale(1.035);
+    filter: brightness(1.08);
+}
+
+.barbershop-gallery-empty {
+    display: flex;
+    min-height: 260px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 24px;
+    border: 1px dashed rgba(244, 241, 232, 0.2);
+    color: var(--text-muted);
+    font-size: 12px;
     text-align: center;
 }
 
-.barbershop-detail > span {
-    font-family: var(--heading-font);
-    font-size: 76px;
-    font-weight: 600;
-    line-height: 1;
+.barbershop-gallery[hidden],
+.barbershop-gallery-empty[hidden] {
+    display: none;
 }
 
-.barbershop-detail small {
-    color: #989486;
-    font-size: 8px;
-    letter-spacing: 2px;
+.barbershop-gallery-empty i {
+    color: var(--yellow);
+    font-size: 26px;
+}
+
+.barbershop-photo-viewer {
+    position: fixed;
+    width: min(92vw, 900px);
+    max-width: none;
+    max-height: 90vh;
+    padding: 20px;
+    border: 1px solid var(--border);
+    background: #191916;
+    color: var(--text);
+}
+
+.barbershop-photo-viewer::backdrop {
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(4px);
+}
+
+.barbershop-photo-viewer > img {
+    width: 100%;
+    max-height: calc(90vh - 100px);
+    object-fit: contain;
+}
+
+.barbershop-photo-viewer > p {
+    margin: 14px 36px 0 0;
+    color: #d3d0c5;
+    font-size: 13px;
     line-height: 1.6;
+}
+
+.barbershop-photo-viewer-close {
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    right: 10px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid var(--border);
+    background: rgba(17, 17, 15, 0.9);
+    color: var(--text);
+}
+
+.barbershop-photo-viewer-close:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
 }
 
 .app-download {
@@ -1238,6 +1365,92 @@ img {
     border-top: 1px solid var(--border);
 }
 
+.cart-coupon {
+    margin-bottom: 15px;
+}
+
+.cart-coupon > label {
+    display: block;
+    margin-bottom: 7px;
+    color: #c9c6bb;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.cart-coupon-controls {
+    display: flex;
+    gap: 7px;
+}
+
+.cart-coupon-controls input {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    outline: none;
+    background: #141411;
+    color: var(--text);
+    font: 400 11px var(--body-font);
+    text-transform: uppercase;
+}
+
+.cart-coupon-controls input:focus {
+    border-color: rgba(243, 198, 35, 0.68);
+}
+
+.cart-coupon-controls button {
+    flex: 0 0 auto;
+    padding: 0 12px;
+    border: 1px solid var(--yellow);
+    background: transparent;
+    color: var(--yellow);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.cart-coupon-controls button:hover:not(:disabled) {
+    background: rgba(243, 198, 35, 0.08);
+}
+
+.cart-coupon-controls button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.cart-coupon-feedback {
+    min-height: 0;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 9px;
+}
+
+.cart-coupon-feedback:not(:empty) {
+    margin-top: 6px;
+}
+
+.cart-coupon-feedback.is-error {
+    color: #efaaa1;
+}
+
+.cart-coupon-feedback.is-success {
+    color: #a4d5ae;
+}
+
+.cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 7px 0;
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.cart-discount-row > span:last-child {
+    color: #a4d5ae;
+}
+
 .cart-total {
     display: flex;
     align-items: center;
@@ -1309,12 +1522,9 @@ img {
     }
 
     .barbershop {
-        grid-template-columns: 0.7fr 1.5fr;
-        gap: 30px;
-    }
-
-    .barbershop-detail {
-        display: none;
+        gap: 28px;
+        padding-right: 5%;
+        padding-left: 5%;
     }
 
     .app-download {
@@ -1400,7 +1610,41 @@ img {
     }
 
     .hero-art {
-        min-height: 255px;
+        display: none;
+    }
+
+    .hero-art.has-profile-image {
+        position: absolute;
+        z-index: 0;
+        inset: 0;
+        display: block;
+        width: auto;
+        min-height: 0;
+        aspect-ratio: auto;
+        justify-self: auto;
+        overflow: hidden;
+        border: 0;
+        background: transparent;
+        pointer-events: none;
+    }
+
+    .hero-art.has-profile-image::before {
+        display: none;
+    }
+
+    .hero-art.has-profile-image::after {
+        display: block;
+        inset: 0;
+        width: auto;
+        height: auto;
+        background: linear-gradient(90deg, rgba(17, 17, 15, 0.68), rgba(17, 17, 15, 0.38));
+        transform: none;
+    }
+
+    .hero-art.has-profile-image .hero-profile-image {
+        object-fit: cover;
+        filter: blur(3px) brightness(0.52) saturate(0.78);
+        transform: scale(1.04);
     }
 
     .hero-art-ring {
@@ -1487,14 +1731,19 @@ img {
     }
 
     .category-filters {
-        flex-wrap: nowrap;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
-        overflow-x: auto;
-        padding-bottom: 4px;
+        min-width: 0;
+        gap: 8px;
     }
 
     .category-filter {
-        flex-shrink: 0;
+        min-width: 0;
+        min-height: 40px;
+        padding: 7px 9px;
+        white-space: normal;
+        line-height: 1.35;
     }
 
     .product-image {
@@ -1528,14 +1777,12 @@ img {
         padding: 24px;
     }
 
-    .barbershop-mark {
-        min-height: 150px;
+    .barbershop-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .barber-pole {
-        width: 86px;
-        height: 86px;
-        font-size: 38px;
+    .barbershop-gallery-empty {
+        min-height: 180px;
     }
 
     .app-download {
@@ -1627,6 +1874,10 @@ img {
 
     .product-price {
         font-size: 14px;
+    }
+
+    .cart-footer {
+        padding: 14px 16px 17px;
     }
 }
 

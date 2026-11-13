@@ -6,11 +6,11 @@ const STORAGE_KEY = "barberflow_produtos";
 const PEDIDOS_STORAGE_KEY = "barberflow_pedidos";
 const TELEFONE_LOJA = "5582994114133";
 const CATEGORIAS_LABELS = {
-    pomadas: "Pomadas",
-    shampoo: "Shampoo e cabelo",
-    barba: "Barba",
-    acessorios: "Acessórios",
-    outros: "Outros"
+    pomadas: "Pomadas e Finalizadores",
+    "cuidados-capilares": "Cuidados Capilares",
+    "cuidados-com-barba": "Cuidados com a Barba",
+    shampoo: "Cuidados Capilares",
+    barba: "Cuidados com a Barba"
 };
 let produtos = [];
 let carrinho = [];
@@ -51,6 +51,13 @@ const categoryFilters =
 
 const productsResultCount =
     document.querySelector("#products-result-count");
+
+const couponInput = document.querySelector("#coupon-code");
+const couponFeedback = document.querySelector("#coupon-feedback");
+const applyCouponButton = document.querySelector("#apply-coupon");
+let appliedCoupon = "";
+let couponPreview = null;
+let couponPreviewRequest = 0;
 
 /* =========================================================
    INICIALIZAÇÃO
@@ -121,7 +128,10 @@ async function carregarProdutos() {
             estoque: Number(produto.stock),
             status: produto.status,
             imagem: produto.image_url || "",
-            descricao: produto.description || ""
+            descricao: produto.description || "",
+            promocaoPercentual: Number(produto.promotion_percent) || 0,
+            promocaoInicio: produto.promotion_starts_at || "",
+            promocaoFim: produto.promotion_ends_at || ""
         }));
         return;
     }
@@ -347,13 +357,153 @@ function criarBotaoFiltro(categoria, rotulo) {
 
 function normalizarCategoria(categoria) {
 
-    return String(categoria || "")
+    const categoriaNormalizada = String(categoria || "")
         .trim()
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, "-");
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
 
+    const aliases = {
+        "pomadas-e-finalizadores": "pomadas",
+        "pomadas": "pomadas",
+        "shampoo": "cuidados-capilares",
+        "shampoo-e-cabelo": "cuidados-capilares",
+        "cuidados-capilares": "cuidados-capilares",
+        "barba": "cuidados-com-barba",
+        "cuidados-com-a-barba": "cuidados-com-barba",
+        "cuidados-com-barba": "cuidados-com-barba"
+    };
+
+    return aliases[categoriaNormalizada] || categoriaNormalizada;
+
+}
+
+function promocaoAtiva(produto) {
+    const percentual = Number(produto.promocaoPercentual);
+    if (!Number.isFinite(percentual) || percentual <= 0) return false;
+
+    const agora = Date.now();
+    const inicio = produto.promocaoInicio ? Date.parse(produto.promocaoInicio) : null;
+    const fim = produto.promocaoFim ? Date.parse(produto.promocaoFim) : null;
+
+    return (inicio === null || (!Number.isNaN(inicio) && inicio <= agora))
+        && (fim === null || (!Number.isNaN(fim) && fim > agora));
+}
+
+function obterPrecoAtual(produto) {
+    const preco = Number(produto.preco || 0);
+    if (!promocaoAtiva(produto)) return preco;
+    const comDesconto = Math.round(preco * (1 - Number(produto.promocaoPercentual) / 100) * 100) / 100;
+    return Math.max(0.01, comDesconto);
+}
+
+function montarItensSolicitados() {
+    return carrinho.map(item => ({
+        product_id: item.id,
+        quantity: Number(item.quantidade)
+    }));
+}
+
+function atualizarResumoComPrevia(preview) {
+    couponPreview = preview;
+    atualizarResumoCarrinho();
+}
+
+async function validarCupom() {
+    if (!couponInput || !couponFeedback || !applyCouponButton) return;
+    const code = couponInput.value.trim().toUpperCase();
+    if (!code) {
+        appliedCoupon = "";
+        couponPreview = null;
+        couponFeedback.textContent = "";
+        couponFeedback.className = "cart-coupon-feedback";
+        atualizarResumoCarrinho();
+        return;
+    }
+
+    if (!window.barberflow || !window.barberflow.isConfigured) {
+        couponFeedback.textContent = "Cupons só podem ser validados com a loja conectada.";
+        couponFeedback.className = "cart-coupon-feedback is-error";
+        return;
+    }
+    if (carrinho.length === 0) {
+        couponFeedback.textContent = "Adicione produtos à sacola antes de aplicar o cupom.";
+        couponFeedback.className = "cart-coupon-feedback is-error";
+        return;
+    }
+
+    const requestId = ++couponPreviewRequest;
+    applyCouponButton.disabled = true;
+    couponFeedback.textContent = "Validando cupom...";
+    couponFeedback.className = "cart-coupon-feedback";
+
+    try {
+        const { data, error } = await window.barberflow.client.rpc("preview_barberflow_order", {
+            p_items: montarItensSolicitados(),
+            p_coupon_code: code
+        });
+        if (error) throw error;
+        if (requestId !== couponPreviewRequest) return;
+
+        if (!data.valid) {
+            appliedCoupon = "";
+            couponPreview = data;
+            couponFeedback.textContent = data.message || "Este cupom não está disponível.";
+            couponFeedback.className = "cart-coupon-feedback is-error";
+            atualizarResumoCarrinho();
+            return;
+        }
+
+        appliedCoupon = code;
+        couponPreview = data;
+        couponFeedback.textContent = data.message || "Cupom aplicado.";
+        couponFeedback.className = "cart-coupon-feedback is-success";
+        atualizarResumoCarrinho();
+    } catch (error) {
+        console.error("Erro ao validar cupom:", error);
+        if (requestId === couponPreviewRequest) {
+            couponFeedback.textContent = "Não foi possível validar o cupom. Tente novamente.";
+            couponFeedback.className = "cart-coupon-feedback is-error";
+        }
+    } finally {
+        if (requestId === couponPreviewRequest) applyCouponButton.disabled = false;
+    }
+}
+
+function atualizarPreviaCupom() {
+    if (!appliedCoupon) return;
+    if (carrinho.length === 0) {
+        couponPreview = null;
+        return;
+    }
+    const requestId = ++couponPreviewRequest;
+    couponPreview = null;
+    atualizarResumoCarrinho();
+    window.barberflow.client.rpc("preview_barberflow_order", {
+        p_items: montarItensSolicitados(),
+        p_coupon_code: appliedCoupon
+    }).then(({ data, error }) => {
+        if (error) throw error;
+        if (requestId !== couponPreviewRequest) return;
+        if (!data.valid) {
+            appliedCoupon = "";
+            couponFeedback.textContent = data.message || "Este cupom não está mais disponível.";
+            couponFeedback.className = "cart-coupon-feedback is-error";
+        } else {
+            couponPreview = data;
+        }
+        atualizarResumoCarrinho();
+    }).catch(error => {
+        console.error("Erro ao atualizar o desconto do cupom:", error);
+        if (requestId === couponPreviewRequest) {
+            couponPreview = null;
+            atualizarResumoCarrinho();
+            couponFeedback.textContent = "Não foi possível atualizar o cupom.";
+            couponFeedback.className = "cart-coupon-feedback is-error";
+        }
+    });
 }
 
 
@@ -363,8 +513,9 @@ function normalizarCategoria(categoria) {
 
 function criarCardProduto(produto) {
 
-    const preco =
-        Number(produto.preco || 0);
+    const precoOriginal = Number(produto.preco || 0);
+    const preco = obterPrecoAtual(produto);
+    const promocao = promocaoAtiva(produto);
 
     const imagem = String(produto.imagem || "").trim();
 
@@ -401,6 +552,7 @@ function criarCardProduto(produto) {
                         "Barbearia"
                     )}
                 </span>
+                ${promocao ? '<span class="product-promotion-badge">Em promoção</span>' : ""}
 
                 <p class="product-description">
                     ${escaparHTML(
@@ -410,9 +562,10 @@ function criarCardProduto(produto) {
 
                 <div class="product-bottom">
 
-                    <strong class="product-price">
-                        ${formatarPreco(preco)}
-                    </strong>
+                    <span class="product-prices">
+                        ${promocao ? `<s>${formatarPreco(precoOriginal)}</s>` : ""}
+                        <strong class="product-price">${formatarPreco(preco)}</strong>
+                    </span>
 
                     <button
                         type="button"
@@ -518,6 +671,15 @@ function renderizarCarrinho() {
         return;
     }
 
+    if (carrinho.length === 0 && appliedCoupon) {
+        appliedCoupon = "";
+        couponPreview = null;
+        if (couponFeedback) {
+            couponFeedback.textContent = "";
+            couponFeedback.className = "cart-coupon-feedback";
+        }
+    }
+
 
     if (carrinho.length === 0) {
 
@@ -528,6 +690,7 @@ function renderizarCarrinho() {
         `;
 
         atualizarResumoCarrinho();
+        atualizarPreviaCupom();
 
         return;
     }
@@ -544,6 +707,7 @@ function renderizarCarrinho() {
     adicionarEventosCarrinho();
 
     atualizarResumoCarrinho();
+    atualizarPreviaCupom();
 
 }
 
@@ -582,9 +746,13 @@ function configurarFallbacksDeImagem(container) {
 
 function criarItemCarrinho(item) {
 
-    const subtotal =
-        Number(item.preco || 0) *
-        Number(item.quantidade || 1);
+    const produto = produtos.find(
+        atual => String(atual.id) === String(item.id)
+    );
+    const precoOriginal = Number(produto ? produto.preco : item.preco || 0);
+    const preco = produto ? obterPrecoAtual(produto) : Number(item.preco || 0);
+    const subtotal = preco * Number(item.quantidade || 1);
+    const emPromocao = Boolean(produto && promocaoAtiva(produto));
 
 
     const imagem = String(item.imagem || "").trim();
@@ -623,7 +791,8 @@ function criarItemCarrinho(item) {
                 </h4>
 
                 <span>
-                    ${formatarPreco(item.preco)}
+                    ${emPromocao ? `<s>${formatarPreco(precoOriginal)}</s> ` : ""}
+                    ${formatarPreco(preco)}
                 </span>
 
 
@@ -857,16 +1026,22 @@ function atualizarResumoCarrinho() {
         );
 
 
-    const total =
+    const subtotal =
         carrinho.reduce(
             (valor, item) =>
-                valor +
-                (
-                    Number(item.preco || 0) *
-                    Number(item.quantidade || 0)
-                ),
+                valor + Number(item.preco || 0) * Number(item.quantidade || 0),
             0
         );
+    const totalPromocional = carrinho.reduce((valor, item) => {
+        const produto = produtos.find(atual => String(atual.id) === String(item.id));
+        const preco = produto ? obterPrecoAtual(produto) : Number(item.preco || 0);
+        return valor + preco * Number(item.quantidade || 0);
+    }, 0);
+    const descontoPromocional = Math.max(0, subtotal - totalPromocional);
+    const descontoCupom = appliedCoupon && couponPreview && couponPreview.valid
+        ? Number(couponPreview.coupon_discount || 0)
+        : 0;
+    const total = Math.max(0, totalPromocional - descontoCupom);
 
 
     if (cartCount) {
@@ -878,11 +1053,19 @@ function atualizarResumoCarrinho() {
 
 
     if (cartTotal) {
-
-        cartTotal.textContent =
-            formatarPreco(total);
-
+        cartTotal.textContent = formatarPreco(total);
     }
+
+    const subtotalElement = document.querySelector("#cart-subtotal");
+    const promoDiscountRow = document.querySelector("#promotion-discount-row");
+    const promoDiscountElement = document.querySelector("#promotion-discount");
+    const couponDiscountRow = document.querySelector("#coupon-discount-row");
+    const couponDiscountElement = document.querySelector("#coupon-discount");
+    if (subtotalElement) subtotalElement.textContent = formatarPreco(subtotal);
+    if (promoDiscountRow) promoDiscountRow.hidden = descontoPromocional <= 0;
+    if (promoDiscountElement) promoDiscountElement.textContent = `− ${formatarPreco(descontoPromocional)}`;
+    if (couponDiscountRow) couponDiscountRow.hidden = descontoCupom <= 0;
+    if (couponDiscountElement) couponDiscountElement.textContent = `− ${formatarPreco(descontoCupom)}`;
 
 }
 
@@ -982,6 +1165,28 @@ function configurarEventos() {
 
     }
 
+    if (applyCouponButton) {
+        applyCouponButton.addEventListener("click", validarCupom);
+    }
+
+    if (couponInput) {
+        couponInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                validarCupom();
+            }
+        });
+        couponInput.addEventListener("input", () => {
+            if (appliedCoupon && couponInput.value.trim().toUpperCase() !== appliedCoupon) {
+                appliedCoupon = "";
+                couponPreview = null;
+                couponFeedback.textContent = "";
+                couponFeedback.className = "cart-coupon-feedback";
+                atualizarResumoCarrinho();
+            }
+        });
+    }
+
 
     document.addEventListener(
         "keydown",
@@ -1043,6 +1248,8 @@ async function finalizarPedido() {
     let pedidoId;
     let total;
     let itensPedido;
+    let descontoCupomPedido = 0;
+    let codigoCupomPedido = "";
 
     try {
         if (pedidoRemoto) {
@@ -1054,7 +1261,8 @@ async function finalizarPedido() {
                         items: itensSolicitados.map(item => ({
                             product_id: item.id,
                             quantity: item.quantidade
-                        }))
+                        })),
+                        coupon_code: appliedCoupon || null
                     }
                 }
             );
@@ -1062,9 +1270,12 @@ async function finalizarPedido() {
 
             pedidoId = data.order_code;
             total = Number(data.total);
+            descontoCupomPedido = Number(data.coupon_discount || 0);
+            codigoCupomPedido = data.coupon_code || "";
             itensPedido = data.items.map(item => ({
                 nome: item.nome,
                 preco: Number(item.preco),
+                precoOriginal: Number(item.preco_original ?? item.preco),
                 quantidade: Number(item.quantidade)
             }));
             try {
@@ -1163,13 +1374,21 @@ async function finalizarPedido() {
         "*Produtos:*",
         ...itensPedido.map(item => {
             const subtotal = Number(item.preco) * Number(item.quantidade);
-            return `• ${item.nome} - ${item.quantidade}x - ${formatarPreco(subtotal)}`;
+            const promoText = item.precoOriginal > Number(item.preco)
+                ? ` (promoção; antes ${formatarPreco(item.precoOriginal)})`
+                : "";
+            return `• ${item.nome} - ${item.quantidade}x - ${formatarPreco(subtotal)}${promoText}`;
         }),
+        ...(codigoCupomPedido && descontoCupomPedido > 0
+            ? ["", `*Cupom ${codigoCupomPedido}:* − ${formatarPreco(descontoCupomPedido)}`]
+            : []),
         "",
         `*Total:* ${formatarPreco(total)}`
     ].join("\n");
     carrinho = [];
-    carrinho = [];
+    appliedCoupon = "";
+    couponPreview = null;
+    if (couponInput) couponInput.value = "";
     renderizarCarrinho();
     renderizarProdutos();
     fecharCarrinho();

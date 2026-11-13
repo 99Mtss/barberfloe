@@ -5,8 +5,8 @@ create table if not exists public.admin_users (
 
 create table if not exists public.products (
     id uuid primary key default gen_random_uuid(),
-    name text not null check (char_length(trim(name)) between 1 and 100),
-    category text not null check (category in ('pomadas', 'shampoo', 'barba', 'acessorios', 'outros')),
+    name text not null,
+    category text not null check (category in ('pomadas', 'cuidados-capilares', 'cuidados-com-barba')),
     price numeric(10, 2) not null check (price > 0),
     stock integer not null default 0 check (stock >= 0),
     status text not null default 'active' check (status in ('active', 'inactive')),
@@ -15,6 +15,39 @@ create table if not exists public.products (
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
+
+create table if not exists public.barber_shop_photos (
+    id uuid primary key default gen_random_uuid(),
+    storage_path text not null unique,
+    alt_text text not null default '',
+    created_at timestamptz not null default now()
+);
+
+create or replace function public.enforce_barber_shop_photo_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    perform pg_catalog.pg_advisory_xact_lock(
+        pg_catalog.hashtext('barberflow_barbershop_photo_limit')
+    );
+
+    if (select pg_catalog.count(*) from public.barber_shop_photos) >= 5 then
+        raise exception 'A galeria permite no máximo 5 fotos.';
+    end if;
+
+    return new;
+end;
+$$;
+
+revoke all on function public.enforce_barber_shop_photo_limit() from public, anon, authenticated;
+
+drop trigger if exists barber_shop_photos_enforce_limit on public.barber_shop_photos;
+create trigger barber_shop_photos_enforce_limit
+    before insert on public.barber_shop_photos
+    for each row execute function public.enforce_barber_shop_photo_limit();
 
 create table if not exists public.orders (
     id uuid primary key default gen_random_uuid(),
@@ -30,6 +63,8 @@ create table if not exists public.orders (
 grant usage on schema public to anon, authenticated;
 grant select on public.products to anon, authenticated;
 grant insert, update, delete on public.products to authenticated;
+grant select on public.barber_shop_photos to anon, authenticated;
+grant insert, update, delete on public.barber_shop_photos to authenticated;
 grant select on public.admin_users to authenticated;
 grant select, update on public.orders to authenticated;
 
@@ -57,6 +92,19 @@ $$;
 revoke all on function public.is_barberflow_admin() from public;
 grant execute on function public.is_barberflow_admin() to authenticated;
 
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+    'barberflow-barbershop',
+    'barberflow-barbershop',
+    true,
+    5242880,
+    array['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+on conflict (id) do update
+set public = true,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -75,6 +123,7 @@ create trigger products_set_updated_at
 
 alter table public.admin_users enable row level security;
 alter table public.products enable row level security;
+alter table public.barber_shop_photos enable row level security;
 alter table public.orders enable row level security;
 
 drop policy if exists "Admins can read their own access" on public.admin_users;
@@ -92,6 +141,45 @@ create policy "Admins can manage products"
     on public.products for all to authenticated
     using ((select public.is_barberflow_admin()))
     with check ((select public.is_barberflow_admin()));
+
+drop policy if exists "Public can read barber shop photos" on public.barber_shop_photos;
+create policy "Public can read barber shop photos"
+    on public.barber_shop_photos for select to anon, authenticated
+    using (true);
+
+drop policy if exists "Admins can manage barber shop photos" on public.barber_shop_photos;
+create policy "Admins can manage barber shop photos"
+    on public.barber_shop_photos for all to authenticated
+    using ((select public.is_barberflow_admin()))
+    with check ((select public.is_barberflow_admin()));
+
+drop policy if exists "Admins can upload barber shop photos" on storage.objects;
+create policy "Admins can upload barber shop photos"
+    on storage.objects for insert to authenticated
+    with check (
+        bucket_id = 'barberflow-barbershop'
+        and (select public.is_barberflow_admin())
+    );
+
+drop policy if exists "Admins can update barber shop photos" on storage.objects;
+create policy "Admins can update barber shop photos"
+    on storage.objects for update to authenticated
+    using (
+        bucket_id = 'barberflow-barbershop'
+        and (select public.is_barberflow_admin())
+    )
+    with check (
+        bucket_id = 'barberflow-barbershop'
+        and (select public.is_barberflow_admin())
+    );
+
+drop policy if exists "Admins can delete barber shop photos" on storage.objects;
+create policy "Admins can delete barber shop photos"
+    on storage.objects for delete to authenticated
+    using (
+        bucket_id = 'barberflow-barbershop'
+        and (select public.is_barberflow_admin())
+    );
 
 drop policy if exists "Admins can read orders" on public.orders;
 create policy "Admins can read orders"

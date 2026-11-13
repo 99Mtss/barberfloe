@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#11110f">
+    <meta name="description" content="Configure cupons, promoções, imagens e galeria da BarberFlow.">
+    <title>Configuração | BarberFlow</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-modules.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="admin-page is-auth-pending" data-admin-page="configuracao">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Menu administrativo">
+            <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
+                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-name">BARBER<span>FLOW</span></span>
+            </a>
+            <div class="admin-sidebar-label">MENU PRINCIPAL</div>
+            <nav class="admin-nav" aria-label="Navegação do painel">
+                <a class="admin-nav-link" href="admin.html"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Visão geral</span></a>
+                <a class="admin-nav-link" href="produtos.html"><i class="fa-solid fa-box" aria-hidden="true"></i><span>Produtos</span></a>
+                <a class="admin-nav-link" href="pedidos.html"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Pedidos</span></a>
+                <a class="admin-nav-link" href="estoque.html"><i class="fa-solid fa-warehouse" aria-hidden="true"></i><span>Estoque</span></a>
+                <a class="admin-nav-link is-active" href="configuracao.html" aria-current="page"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Configuração</span></a>
+            </nav>
+            <div class="admin-sidebar-bottom">
+                <div class="admin-sidebar-label">SUA LOJA</div>
+                <a class="admin-nav-link" href="../index.html"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Voltar para a loja</span></a>
+                <div class="admin-sidebar-foot"><span class="admin-status-dot" aria-hidden="true"></span>Painel administrativo</div>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div><p class="admin-breadcrumb">BARBERFLOW <span>/</span> CONFIGURAÇÃO</p><h1>Configuração</h1></div>
+                <div class="admin-user">
+                    <span class="admin-user-avatar" aria-hidden="true">BF</span>
+                    <span class="admin-user-copy"><strong>Administrador</strong><small>Acesso administrativo</small></span>
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    <button class="admin-logout" id="admin-logout" type="button" aria-label="Sair do painel" title="Sair do painel"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Sair</span></button>
+                </div>
+            </header>
+            <div class="admin-content">
+                <section class="admin-welcome admin-module-welcome">
+                    <div><p class="admin-eyebrow"><span></span> PERSONALIZE SUA LOJA</p><h2>Configurações da <span>BarberFlow.</span></h2><p>Gerencie cupons, promoções, fotos e identidade visual.</p></div>
+                </section>
+                <nav class="admin-settings-nav" aria-label="Seções de configuração">
+                    <a href="#config-coupons">Cupons</a>
+                    <a href="#config-promotions">Promoções</a>
+                    <a href="#config-barbershop">Barbearia</a>
+                    <a href="#config-profile">Foto de perfil</a>
+                </nav>
+
+                <section class="admin-panel admin-form-panel admin-settings-section" id="config-coupons" aria-labelledby="coupons-title">
+                    <div class="admin-panel-heading"><div><h2 id="coupons-title">Cupons de desconto</h2><p>Descontos percentuais para produtos fora de promoção</p></div></div>
+                    <div class="admin-notice" id="settings-notice" role="status" aria-live="polite" hidden></div>
+                    <form id="coupon-form" class="admin-form admin-coupon-form">
+                        <label class="admin-field">Código do cupom<input id="coupon-code-input" name="code" required maxlength="30" pattern="[A-Za-z0-9_-]{3,30}" placeholder="Ex.: BEMVINDO10" autocomplete="off"></label>
+                        <label class="admin-field">Desconto (%)<input name="percent" type="number" min="0.01" max="100" step="0.01" required placeholder="10"></label>
+                        <label class="admin-field">Começa em <span class="admin-optional">(opcional)</span><input name="starts_at" type="datetime-local"></label>
+                        <label class="admin-field">Expira em <span class="admin-optional">(opcional)</span><input name="expires_at" type="datetime-local"></label>
+                        <label class="admin-field">Limite de usos <span class="admin-optional">(vazio = ilimitado)</span><input name="usage_limit" type="number" min="1" step="1" placeholder="Ilimitado"></label>
+                        <div class="admin-form-actions admin-field-full">
+                            <button class="admin-button admin-button-primary" type="submit"><i class="fa-solid fa-tag" aria-hidden="true"></i><span id="coupon-submit-label">Criar cupom</span></button>
+                            <button class="admin-button admin-button-quiet" id="coupon-cancel-edit" type="button" hidden>Cancelar edição</button>
+                        </div>
+                    </form>
+                    <div class="admin-table-wrap admin-settings-table-wrap">
+                        <table class="admin-data-table">
+                            <thead><tr><th scope="col">Código</th><th scope="col">Desconto</th><th scope="col">Validade</th><th scope="col">Usos</th><th scope="col">Status</th><th scope="col">Ações</th></tr></thead>
+                            <tbody id="coupon-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-empty-state" id="coupon-empty" hidden><i class="fa-solid fa-ticket" aria-hidden="true"></i><strong>Nenhum cupom cadastrado</strong><span>Crie um cupom para oferecer desconto aos clientes.</span></div>
+                </section>
+
+                <section class="admin-panel admin-list-panel admin-settings-section" id="config-promotions" aria-labelledby="promotions-title">
+                    <div class="admin-panel-heading"><div><h2 id="promotions-title">Promoções por produto</h2><p>Defina desconto percentual e período; cupons não acumulam nesses produtos.</p></div></div>
+                    <div class="admin-table-wrap admin-settings-table-wrap">
+                        <table class="admin-data-table admin-promotion-table">
+                            <thead><tr><th scope="col">Produto</th><th scope="col">Preço</th><th scope="col">Desconto (%)</th><th scope="col">Início</th><th scope="col">Fim</th><th scope="col">Ação</th></tr></thead>
+                            <tbody id="promotion-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="admin-empty-state" id="promotion-empty" hidden><i class="fa-solid fa-tags" aria-hidden="true"></i><strong>Nenhum produto cadastrado</strong><span>Cadastre produtos antes de criar promoções.</span></div>
+                </section>
+
+                <section class="admin-panel admin-list-panel admin-settings-section" id="config-barbershop" aria-labelledby="barbershop-title">
+                    <div class="admin-panel-heading"><div><h2 id="barbershop-title">Fotos da barbearia</h2><p>Até cinco fotos aparecem na página da loja.</p></div><span class="admin-demo-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>5 MB por imagem</span></div>
+                    <div class="admin-notice" id="barbershop-notice" role="status" aria-live="polite" hidden></div>
+                    <form id="barbershop-photo-form" class="admin-form admin-gallery-form">
+                        <label class="admin-field admin-field-wide">Foto da barbearia
+                            <input id="barbershop-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                            <span class="admin-optional">Você pode publicar até 5 fotos.</span>
+                        </label>
+                        <label class="admin-field admin-field-wide">Descrição da foto <span class="admin-optional">(opcional)</span>
+                            <input id="barbershop-photo-alt" name="alt" maxlength="160" placeholder="Ex.: Espaço de atendimento">
+                        </label>
+                        <div class="admin-form-actions admin-field-full">
+                            <button class="admin-button admin-button-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>Enviar foto</span></button>
+                        </div>
+                    </form>
+                    <div class="admin-panel-heading admin-gallery-heading"><div><h3>Galeria publicada</h3><p id="barbershop-photo-count">Carregando fotos...</p></div></div>
+                    <div class="admin-gallery-grid" id="barbershop-photo-list"></div>
+                    <div class="admin-empty-state" id="barbershop-photo-empty" hidden><i class="fa-regular fa-images" aria-hidden="true"></i><strong>Nenhuma foto publicada</strong><span>Adicione fotos para apresentar a barbearia na loja.</span></div>
+                </section>
+
+                <section class="admin-panel admin-form-panel admin-settings-section" id="config-profile" aria-labelledby="profile-title">
+                    <div class="admin-panel-heading"><div><h2 id="profile-title">Foto de perfil da loja</h2><p>Envie e visualize a imagem; o local onde ela aparecerá na loja será configurado depois.</p></div></div>
+                    <form id="profile-photo-form" class="admin-form admin-gallery-form">
+                        <label class="admin-field admin-field-wide">Escolha uma imagem
+                            <input id="profile-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+                            <span class="admin-optional">JPG, PNG ou WebP, até 5 MB.</span>
+                        </label>
+                        <div class="admin-field-wide admin-profile-preview-wrap">
+                            <img id="profile-photo-preview" class="admin-profile-preview" src="" alt="Pré-visualização da foto de perfil" hidden>
+                            <p id="profile-photo-empty" class="admin-optional">Nenhuma foto de perfil enviada.</p>
+                        </div>
+                        <div class="admin-form-actions admin-field-full">
+                            <button class="admin-button admin-button-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>Salvar foto</span></button>
+                            <button class="admin-button admin-button-quiet" id="profile-photo-remove" type="button" hidden>Remover foto</button>
+                        </div>
+                    </form>
+                </section>
+                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Configuração</span><span>Preferências da loja</span></footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="admin-guard.js"></script>
+    <script src="barbershop-gallery.js"></script>
+    <script src="configuracao.js"></script>
+</body>
+</html>

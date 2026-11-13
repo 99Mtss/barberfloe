@@ -90,11 +90,17 @@ Deno.serve(async request => {
     const orderPayload = payload as {
         customer_name?: unknown;
         items?: unknown;
+        coupon_code?: unknown;
     };
     const customerName = typeof orderPayload.customer_name === "string"
         ? orderPayload.customer_name.trim()
         : "";
     const items = orderPayload.items;
+    const couponCode = orderPayload.coupon_code == null
+        ? null
+        : typeof orderPayload.coupon_code === "string"
+            ? orderPayload.coupon_code.trim().toUpperCase()
+            : "";
 
     if (customerName.length < 1 || customerName.length > 120) {
         return response({ error: "Informe um nome com até 120 caracteres." }, 400, origin);
@@ -102,6 +108,10 @@ Deno.serve(async request => {
 
     if (!Array.isArray(items) || items.length < 1 || items.length > MAX_ITEMS) {
         return response({ error: "Revise os itens do seu pedido." }, 400, origin);
+    }
+
+    if (couponCode !== null && !/^[A-Z0-9_-]{3,30}$/.test(couponCode)) {
+        return response({ error: "O código do cupom é inválido." }, 400, origin);
     }
 
     const requestedItems = new Map<string, number>();
@@ -168,7 +178,8 @@ Deno.serve(async request => {
             product_id,
             quantity
         })),
-        p_ip_hash: ipHash
+        p_ip_hash: ipHash,
+        p_coupon_code: couponCode
     });
 
     if (error) {
@@ -182,7 +193,7 @@ Deno.serve(async request => {
         }
         if (error.code === "PGRST202" || error.code === "42883") {
             return response(
-                { error: "O checkout ainda não foi atualizado no Supabase. Execute a migração 20261112_order_rate_limit.sql e publique novamente a Edge Function create-order." },
+                { error: "O checkout ainda não foi atualizado no Supabase. Execute as migrations de promoções/cupons e publique novamente a Edge Function create-order." },
                 503,
                 origin
             );

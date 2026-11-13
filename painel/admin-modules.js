@@ -3,11 +3,11 @@
 
     const LOW_STOCK_LIMIT = 5;
     const CATEGORIES = {
-        pomadas: "Pomadas",
-        shampoo: "Shampoo e cabelo",
-        barba: "Barba",
-        acessorios: "Acessórios",
-        outros: "Outros"
+        pomadas: "Pomadas e Finalizadores",
+        "cuidados-capilares": "Cuidados Capilares",
+        "cuidados-com-barba": "Cuidados com a Barba",
+        shampoo: "Cuidados Capilares",
+        barba: "Cuidados com a Barba"
     };
     const ORDER_STATUSES = {
         pending: "Pendente",
@@ -45,12 +45,26 @@
     }
 
     function normalizeCategory(value) {
-        return String(value || "")
+        const normalized = String(value || "")
             .trim()
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s+/g, "-");
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        const aliases = {
+            "pomadas-e-finalizadores": "pomadas",
+            "pomadas": "pomadas",
+            "shampoo": "cuidados-capilares",
+            "shampoo-e-cabelo": "cuidados-capilares",
+            "cuidados-capilares": "cuidados-capilares",
+            "barba": "cuidados-com-barba",
+            "cuidados-com-a-barba": "cuidados-com-barba",
+            "cuidados-com-barba": "cuidados-com-barba"
+        };
+
+        return aliases[normalized] || normalized;
     }
 
     function categoryLabel(value) {
@@ -74,7 +88,10 @@
             estoque: Number(row.stock),
             status: row.status,
             imagem: row.image_url || "",
-            descricao: row.description || ""
+            descricao: row.description || "",
+            promocaoPercentual: Number(row.promotion_percent) || null,
+            promocaoInicio: row.promotion_starts_at || "",
+            promocaoFim: row.promotion_ends_at || ""
         };
     }
 
@@ -95,7 +112,10 @@
             stock: product.estoque,
             status: product.status,
             image_url: product.imagem,
-            description: product.descricao
+            description: product.descricao,
+            promotion_percent: product.promocaoPercentual ?? null,
+            promotion_starts_at: product.promocaoInicio || null,
+            promotion_ends_at: product.promocaoFim || null
         };
         const query = id
             ? getClient().from("products").update(record).eq("id", id)
@@ -108,6 +128,53 @@
     function showOperationError(action, error) {
         console.error(`${action}:`, error);
         showNotice(`${action}. ${error.message || "Verifique sua conexão e tente novamente."}`, "error");
+    }
+
+    function getProductImageField() {
+        return document.querySelector("#product-image-url");
+    }
+
+    function getProductImageFileInput() {
+        return document.querySelector("#product-image-file");
+    }
+
+    function renderProductImagePreview(imageSource) {
+        const preview = document.querySelector("#product-image-preview");
+        const previewImage = document.querySelector("#product-image-preview-img");
+        if (!preview || !previewImage) return;
+        if (!imageSource) {
+            preview.hidden = true;
+            previewImage.src = "";
+            return;
+        }
+        preview.hidden = false;
+        previewImage.src = imageSource;
+    }
+
+    function clearProductImage() {
+        const hidden = getProductImageField();
+        const input = getProductImageFileInput();
+        if (hidden) hidden.value = "";
+        if (input) input.value = "";
+        renderProductImagePreview("");
+    }
+
+    function readImageAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            if (!file || !file.type || !file.type.startsWith("image/")) {
+                reject(new Error("Selecione um arquivo de imagem válido."));
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                reject(new Error("A imagem deve ter no máximo 5 MB."));
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("Não foi possível ler a imagem do dispositivo."));
+            reader.readAsDataURL(file);
+        });
     }
 
     function getProduct(id) {
@@ -163,6 +230,8 @@
         form.elements.namedItem("id").value = "";
         form.elements.namedItem("estoque").value = "0";
         form.elements.namedItem("status").value = "active";
+        form.elements.namedItem("imagem").value = "";
+        clearProductImage();
         document.querySelector("#product-form-title").textContent = "Novo produto";
         document.querySelector("#product-cancel-edit").hidden = true;
         form.elements.namedItem("nome").focus();
@@ -177,6 +246,7 @@
         form.elements.namedItem("estoque").value = product.estoque ?? 0;
         form.elements.namedItem("status").value = product.status === "inactive" ? "inactive" : "active";
         form.elements.namedItem("imagem").value = product.imagem || "";
+        renderProductImagePreview(product.imagem || "");
         form.elements.namedItem("descricao").value = product.descricao || "";
         document.querySelector("#product-form-title").textContent = "Editar produto";
         document.querySelector("#product-cancel-edit").hidden = false;
@@ -205,7 +275,10 @@
                 estoque: stock,
                 status: fields.namedItem("status").value,
                 imagem: fields.namedItem("imagem").value.trim(),
-                descricao: fields.namedItem("descricao").value.trim()
+                descricao: fields.namedItem("descricao").value.trim(),
+                promocaoPercentual: existing ? existing.promocaoPercentual : null,
+                promocaoInicio: existing ? existing.promocaoInicio : "",
+                promocaoFim: existing ? existing.promocaoFim : ""
             };
             const submitButton = form.querySelector('[type="submit"]');
             submitButton.disabled = true;
@@ -225,6 +298,19 @@
         });
 
         document.querySelector("#product-cancel-edit").addEventListener("click", resetProductForm);
+        document.querySelector("#product-image-clear").addEventListener("click", clearProductImage);
+        document.querySelector("#product-image-file").addEventListener("change", async event => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            try {
+                const imageUrl = await readImageAsDataUrl(file);
+                getProductImageField().value = imageUrl;
+                renderProductImagePreview(imageUrl);
+            } catch (error) {
+                showOperationError("Não foi possível carregar a imagem", error);
+                clearProductImage();
+            }
+        });
         document.querySelector("#product-search").addEventListener("input", renderProducts);
         document.querySelector("#products-table-body").addEventListener("click", async event => {
             const editButton = event.target.closest("[data-edit-product]");
