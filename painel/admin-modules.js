@@ -12,7 +12,7 @@
     const ORDER_STATUSES = {
         pending: "Pendente",
         confirmed: "Confirmado",
-        completed: "Concluído",
+        completed: "Aguardando",
         cancelled: "Cancelado"
     };
 

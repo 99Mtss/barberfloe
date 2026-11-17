@@ -30,7 +30,7 @@
         const labels = {
             pending: ["Pendente", "is-pending"],
             confirmed: ["Confirmado", "is-pending"],
-            completed: ["Concluído", "is-complete"],
+            completed: ["Aguardando", "is-pending"],
             cancelled: ["Cancelado", "is-cancelled"]
         };
         return labels[status] || ["Pendente", "is-pending"];
@@ -89,7 +89,7 @@
                 && date.getMonth() === now.getMonth();
         });
         const monthTotal = monthOrders
-            .filter(order => order.status !== "cancelled")
+            .filter(order => order.status === "confirmed")
             .reduce((sum, order) => sum + Number(order.total), 0);
 
         document.querySelector("#dashboard-month-total").textContent = currency.format(monthTotal);

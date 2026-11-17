@@ -15,7 +15,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar" aria-label="Menu administrativo">
             <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
-                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-mark" aria-hidden="true"><img class="store-profile-mark-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                 <span class="admin-brand-name">BARBER<span>FLOW</span></span>
             </a>
             <div class="admin-sidebar-label">MENU PRINCIPAL</div>
@@ -71,13 +71,14 @@
                     <div class="admin-table-wrap"><table class="admin-data-table"><thead><tr><th scope="col">Produto</th><th scope="col">Categoria</th><th scope="col">Preço</th><th scope="col">Estoque</th><th scope="col">Status</th><th scope="col">Ações</th></tr></thead><tbody id="products-table-body"></tbody></table></div>
                     <div class="admin-empty-state" id="products-empty" hidden><i class="fa-solid fa-box-open" aria-hidden="true"></i><strong>Nenhum produto cadastrado</strong><span>Use o formulário acima para adicionar o primeiro produto.</span></div>
                 </section>
-                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span><span>Catálogo compartilhado com a loja</span></footer>
+                <footer class="admin-footer"><span>BarberFlow <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> Painel administrativo</span><span>Catálogo compartilhado com a loja</span></footer>
             </div>
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
     <script src="../supabase-client.js"></script>
+    <script src="../store-profile.js"></script>
     <script src="admin-guard.js"></script>
     <script src="admin-modules.js"></script>
 </body>

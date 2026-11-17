@@ -15,7 +15,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar" aria-label="Menu administrativo">
             <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
-                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-mark" aria-hidden="true"><img class="store-profile-mark-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                 <span class="admin-brand-name">BARBER<span>FLOW</span></span>
             </a>
             <div class="admin-sidebar-label">MENU PRINCIPAL</div>
@@ -68,13 +68,14 @@
                     <div class="admin-gallery-grid" id="barbershop-photo-list"></div>
                     <div class="admin-empty-state" id="barbershop-photo-empty" hidden><i class="fa-regular fa-images" aria-hidden="true"></i><strong>Nenhuma foto publicada</strong><span>Adicione fotos para apresentar a barbearia na loja.</span></div>
                 </section>
-                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span><span>Galeria da barbearia</span></footer>
+                <footer class="admin-footer"><span>BarberFlow <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> Painel administrativo</span><span>Galeria da barbearia</span></footer>
             </div>
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
     <script src="../supabase-client.js"></script>
+    <script src="../store-profile.js"></script>
     <script src="admin-guard.js"></script>
     <script src="barbershop-gallery.js"></script>
 </body>

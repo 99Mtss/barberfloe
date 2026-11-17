@@ -15,7 +15,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar" aria-label="Menu administrativo">
             <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
-                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-mark" aria-hidden="true"><img class="store-profile-mark-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                 <span class="admin-brand-name">BARBER<span>FLOW</span></span>
             </a>
             <div class="admin-sidebar-label">MENU PRINCIPAL</div>
@@ -46,21 +46,22 @@
                 <section class="admin-metrics admin-order-metrics" aria-label="Resumo de pedidos">
                     <article class="admin-metric-card"><div class="admin-metric-top"><span>Total de pedidos</span><span class="admin-metric-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-total-count">0</strong><span class="admin-metric-caption">Todos os pedidos registrados</span></article>
                     <article class="admin-metric-card"><div class="admin-metric-top"><span>Pendentes</span><span class="admin-metric-icon is-warning"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-pending-count">0</strong><span class="admin-metric-caption">Aguardando atendimento</span></article>
-                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Concluídos</span><span class="admin-metric-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-completed-count">0</strong><span class="admin-metric-caption">Pedidos finalizados</span></article>
+                    <article class="admin-metric-card"><div class="admin-metric-top"><span>Aguardando</span><span class="admin-metric-icon is-warning"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-completed-count">0</strong><span class="admin-metric-caption">Pedidos aguardando confirmação</span></article>
                     <article class="admin-metric-card"><div class="admin-metric-top"><span>Cancelados</span><span class="admin-metric-icon"><i class="fa-solid fa-ban" aria-hidden="true"></i></span></div><strong class="admin-metric-value" id="orders-cancelled-count">0</strong><span class="admin-metric-caption">Pedidos cancelados</span></article>
                 </section>
                 <section class="admin-panel admin-list-panel" aria-labelledby="orders-list-title">
-                    <div class="admin-panel-heading admin-list-heading"><div><h2 id="orders-list-title">Todos os pedidos</h2><p>Pedidos registrados pela loja</p></div><div class="admin-list-controls"><label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="order-search" type="search" placeholder="Buscar pedido ou cliente" aria-label="Buscar pedido ou cliente"></label><label class="admin-filter-label"><span class="sr-only">Filtrar por status</span><select id="order-status-filter" aria-label="Filtrar por status"><option value="all">Todos os status</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></label></div></div>
+                    <div class="admin-panel-heading admin-list-heading"><div><h2 id="orders-list-title">Todos os pedidos</h2><p>Pedidos registrados pela loja</p></div><div class="admin-list-controls"><label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="order-search" type="search" placeholder="Buscar pedido ou cliente" aria-label="Buscar pedido ou cliente"></label><label class="admin-filter-label"><span class="sr-only">Filtrar por status</span><select id="order-status-filter" aria-label="Filtrar por status"><option value="all">Todos os status</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="completed">Aguardando</option><option value="cancelled">Cancelado</option></select></label></div></div>
                     <div class="admin-table-wrap"><table class="admin-data-table admin-orders-data-table"><thead><tr><th scope="col">Pedido</th><th scope="col">Cliente</th><th scope="col">Itens</th><th scope="col">Data</th><th scope="col">Total</th><th scope="col">Status</th></tr></thead><tbody id="orders-table-body"></tbody></table></div>
                     <div class="admin-empty-state" id="orders-empty" hidden><i class="fa-solid fa-receipt" aria-hidden="true"></i><strong>Nenhum pedido encontrado</strong><span>Os pedidos feitos na loja aparecerão aqui.</span></div>
                 </section>
-                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Painel administrativo</span><span>Pedidos sincronizados com a loja</span></footer>
+                <footer class="admin-footer"><span>BarberFlow <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> Painel administrativo</span><span>Pedidos sincronizados com a loja</span></footer>
             </div>
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
     <script src="../supabase-client.js"></script>
+    <script src="../store-profile.js"></script>
     <script src="admin-guard.js"></script>
     <script src="admin-modules.js"></script>
 </body>

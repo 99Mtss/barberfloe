@@ -15,7 +15,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar" aria-label="Menu administrativo">
             <a href="../index.html" class="admin-brand" aria-label="BarberFlow, voltar à loja">
-                <span class="admin-brand-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="admin-brand-mark" aria-hidden="true"><img class="store-profile-mark-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                 <span class="admin-brand-name">BARBER<span>FLOW</span></span>
             </a>
             <div class="admin-sidebar-label">MENU PRINCIPAL</div>
@@ -51,6 +51,7 @@
                     <a href="#config-promotions">Promoções</a>
                     <a href="#config-barbershop">Barbearia</a>
                     <a href="#config-profile">Foto de perfil</a>
+                    <a href="#config-banner">Banner do desktop</a>
                 </nav>
 
                 <section class="admin-panel admin-form-panel admin-settings-section" id="config-coupons" aria-labelledby="coupons-title">
@@ -108,7 +109,7 @@
                 </section>
 
                 <section class="admin-panel admin-form-panel admin-settings-section" id="config-profile" aria-labelledby="profile-title">
-                    <div class="admin-panel-heading"><div><h2 id="profile-title">Foto de perfil da loja</h2><p>Envie e visualize a imagem; o local onde ela aparecerá na loja será configurado depois.</p></div></div>
+                    <div class="admin-panel-heading"><div><h2 id="profile-title">Foto de perfil da loja</h2><p>A foto de perfil aparece no destaque do topo da loja, especialmente na versão mobile.</p></div></div>
                     <form id="profile-photo-form" class="admin-form admin-gallery-form">
                         <label class="admin-field admin-field-wide">Escolha uma imagem
                             <input id="profile-photo-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
@@ -124,13 +125,31 @@
                         </div>
                     </form>
                 </section>
-                <footer class="admin-footer"><span>BarberFlow <i class="fa-solid fa-scissors" aria-hidden="true"></i> Configuração</span><span>Preferências da loja</span></footer>
+                <section class="admin-panel admin-form-panel admin-settings-section" id="config-banner" aria-labelledby="banner-title">
+                    <div class="admin-panel-heading"><div><h2 id="banner-title">Banner da versão desktop</h2><p>Escolha a imagem de fundo do topo da loja. O título e os botões continuam visíveis sobre o banner.</p></div></div>
+                    <form id="hero-banner-form" class="admin-form admin-gallery-form">
+                        <label class="admin-field admin-field-wide">Imagem do banner
+                            <input id="hero-banner-file" name="banner" type="file" accept="image/jpeg,image/png,image/webp" required>
+                            <span class="admin-optional">JPG, PNG ou WebP, até 5 MB. Recomendamos uma imagem horizontal.</span>
+                        </label>
+                        <div class="admin-field-wide admin-profile-preview-wrap">
+                            <img id="hero-banner-preview" class="admin-banner-preview" src="" alt="Pré-visualização do banner da versão desktop" hidden>
+                            <p id="hero-banner-empty" class="admin-optional">Nenhum banner personalizado. A imagem padrão será usada.</p>
+                        </div>
+                        <div class="admin-form-actions admin-field-full">
+                            <button class="admin-button admin-button-primary" type="submit"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><span>Salvar banner</span></button>
+                            <button class="admin-button admin-button-quiet" id="hero-banner-remove" type="button" hidden>Restaurar banner padrão</button>
+                        </div>
+                    </form>
+                </section>
+                <footer class="admin-footer"><span>BarberFlow <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> Configuração</span><span>Preferências da loja</span></footer>
             </div>
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
     <script src="../supabase-client.js"></script>
+    <script src="../store-profile.js"></script>
     <script src="admin-guard.js"></script>
     <script src="barbershop-gallery.js"></script>
     <script src="configuracao.js"></script>

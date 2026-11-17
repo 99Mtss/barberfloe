@@ -33,7 +33,8 @@ Os dois endereços usam o mesmo domínio e apontam para o mesmo projeto Supabase
 
 - Produtos, estoque e pedidos são compartilhados pelo Supabase entre a loja e o painel. A atualização de produtos e pedidos é transmitida em tempo real.
 - O pedido e a baixa do estoque são processados juntos pela função `create_barberflow_order`; preço e disponibilidade são conferidos no banco, não no navegador do cliente. A loja chama a Edge Function `create-order`, que limita cada IP a 3 pedidos a cada 15 minutos. O IP é usado somente em hash para aplicar o limite.
-- O checkout continua encaminhando o cliente para o WhatsApp para combinar o pagamento. O valor exibido no painel representa pedidos registrados, não necessariamente pagamentos recebidos.
+- Ao cancelar um pedido no painel, os itens retornam ao estoque. Se um pedido cancelado for reativado, o estoque é reservado novamente; a reativação falha se não houver quantidade suficiente.
+- O checkout continua encaminhando o cliente para o WhatsApp para combinar o pagamento. O indicador "Valor em pedidos no mês" soma apenas pedidos confirmados, não necessariamente pagamentos recebidos.
 - O checkout não exige conta ou configuração na Cloudflare. O limite é compartilhado por pessoas que usam o mesmo IP, como clientes na mesma rede.
 - Produtos que existiam apenas no `localStorage` antes de configurar o Supabase não são migrados automaticamente. Cadastre-os novamente pelo painel ou exporte os dados antigos antes da troca.
 - Para desenvolver sem configuração em `localhost` ou abrindo os arquivos localmente, a loja ainda lê os dados locais antigos. Em outros domínios, ela exige configuração do Supabase em vez de aparentar estar conectada. O painel administrativo não libera o acesso até que o Supabase esteja configurado e o responsável autenticado.
@@ -51,19 +52,22 @@ Os dois endereços usam o mesmo domínio e apontam para o mesmo projeto Supabase
    A loja e o painel usam a mesma origem, então basta cadastrá-la uma vez. `ALLOWED_ORIGINS` recebe a origem completa (protocolo e domínio). O Supabase fornece `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` à Edge Function automaticamente. Nunca publique nem compartilhe a chave `service_role`.
 2. No **SQL Editor**, execute uma vez [`supabase/migrations/20261112_order_rate_limit.sql`](./supabase/migrations/20261112_order_rate_limit.sql). Ela bloqueia chamadas públicas diretas à rotina de pedidos e cria o limite usado pela Edge Function. Não execute novamente `supabase/schema.sql` em um banco já configurado.
 3. No **SQL Editor**, execute uma vez [`supabase/migrations/20261113_store_promotions_coupons_settings.sql`](./supabase/migrations/20261113_store_promotions_coupons_settings.sql). Ela adiciona promoções por produto, cupons, foto de perfil da loja e as rotinas de prévia e criação de pedidos com descontos. Execute depois da migration de limite de pedidos.
-4. Publique a Edge Function atualizada:
+4. No **SQL Editor**, execute uma vez [`supabase/migrations/20261117_order_cancellation_stock.sql`](./supabase/migrations/20261117_order_cancellation_stock.sql) para devolver itens ao estoque quando um pedido for cancelado.
+5. No **SQL Editor**, execute uma vez [`supabase/migrations/20261117_store_hero_banner.sql`](./supabase/migrations/20261117_store_hero_banner.sql) para habilitar o banner personalizado do desktop.
+6. Publique a Edge Function atualizada:
 
    ```powershell
    supabase functions deploy create-order
    ```
 
-5. Publique o site e teste o checkout: um pedido deve ser registrado, o estoque deve ser atualizado e o WhatsApp deve abrir com os dados e descontos calculados no servidor.
+7. Publique o site e teste o checkout: um pedido deve ser registrado, o estoque deve ser atualizado e o WhatsApp deve abrir com os dados e descontos calculados no servidor.
 
 ## Configuração da loja
 
 1. Depois de aplicar a migration de cupons e promoções, abra **Configuração** no painel para criar, editar, ativar/desativar ou excluir cupons percentuais.
 2. Na mesma página, configure promoções percentuais e o período opcional de cada produto. Os cupons não são aplicados aos produtos em promoção.
 3. A seção **Barbearia** reúne a galeria de até cinco fotos, e **Foto de perfil** permite enviar, pré-visualizar e remover a imagem. A foto de perfil aparece no destaque visual do topo da loja.
+4. Em **Banner do desktop**, envie uma imagem JPG, PNG ou WebP de até 5 MB, visualize a prévia e salve. O banner substitui a imagem padrão no topo da versão desktop; o texto e os botões permanecem. Use **Restaurar banner padrão** para remover a imagem personalizada.
 
 ## Galeria da barbearia
 

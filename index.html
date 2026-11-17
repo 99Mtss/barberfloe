@@ -21,6 +21,7 @@
     <header class="header">
         <a href="#inicio" class="logo" aria-label="BarberFlow, início">
             <span class="logo-mark" aria-hidden="true">
+                <img class="store-profile-mark-image" alt="" hidden>
                 <i class="fa-solid fa-scissors"></i>
             </span>
             <span class="logo-name">BARBER<span>FLOW</span></span>
@@ -59,7 +60,7 @@
                     </a>
                 </div>
                 <div class="hero-note">
-                    <i class="fa-solid fa-scissors" aria-hidden="true"></i>
+                    <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                     <span>Da barbearia para a sua rotina.</span>
                 </div>
             </div>
@@ -70,7 +71,7 @@
                     <div class="hero-art-ring"></div>
                     <div class="hero-art-label">BARBER<br><span>FLOW</span></div>
                     <div class="hero-art-tool">
-                        <i class="fa-solid fa-scissors"></i>
+                        <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span>
                     </div>
                     <div class="hero-art-caption">ESTILO EM CADA DETALHE</div>
                     <div class="hero-art-stripe"></div>
@@ -81,13 +82,13 @@
         <section class="products-section section-shell" id="produtos" aria-labelledby="products-title">
             <div class="section-heading">
                 <div>
-                    <p class="eyebrow"><span></span> ESCOLHA DO BARBEIRO</p>
+
                     <h2 id="products-title">Cuide do visual <span>em casa.</span></h2>
                     <p class="section-description">
                         Pomadas, cuidados capilares e produtos para barba.
                     </p>
                 </div>
-                <span class="section-stamp"><i class="fa-solid fa-scissors" aria-hidden="true"></i> SELEÇÃO BARBERFLOW</span>
+                <span class="section-stamp"><span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> SELEÇÃO BARBERFLOW</span>
             </div>
 
             <div class="products-toolbar">
@@ -139,17 +140,13 @@
         </dialog>
 
         <section class="app-download" id="app" aria-labelledby="app-title">
-            <div class="app-visual" aria-hidden="true">
-                <div class="phone-frame">
-                    <div class="phone-speaker"></div>
-                    <div class="phone-screen">
-                        <span class="phone-logo"><i class="fa-solid fa-scissors"></i></span>
-                        <strong>Seu próximo<br>horário, mais perto.</strong>
-                        <span class="phone-line"></span>
-                        <span class="phone-appointment"><i class="fa-regular fa-calendar-check"></i> Agendar horário</span>
-                    </div>
-                </div>
-                <span class="app-visual-spark"><i class="fa-solid fa-star"></i></span>
+            <div class="app-visual">
+                <img
+                    src="assets/agendamento.webp"
+                    alt="Aplicativo Barber Luz aberto em um celular diante da barbearia"
+                    loading="lazy"
+                    decoding="async"
+                >
             </div>
 
             <div class="app-content">
@@ -190,7 +187,10 @@
     <footer class="footer">
         <div class="footer-main">
             <a href="#inicio" class="logo" aria-label="BarberFlow, voltar ao início">
-                <span class="logo-mark" aria-hidden="true"><i class="fa-solid fa-scissors"></i></span>
+                <span class="logo-mark" aria-hidden="true">
+                    <img class="store-profile-mark-image" alt="" hidden>
+                    <i class="fa-solid fa-scissors"></i>
+                </span>
                 <span class="logo-name">BARBER<span>FLOW</span></span>
             </a>
             <p>O cuidado da barbearia, no seu dia a dia.</p>
@@ -220,7 +220,7 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; 2026 BarberFlow. Todos os direitos reservados.</span>
-            <span>BARBEARIA <i class="fa-solid fa-scissors" aria-hidden="true"></i> CUIDADO <i class="fa-solid fa-scissors" aria-hidden="true"></i> ESTILO</span>
+            <span>BARBEARIA <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> CUIDADO <span class="profile-icon-wrap" aria-hidden="true"><img class="store-profile-icon-image" alt="" hidden><i class="fa-solid fa-scissors"></i></span> ESTILO</span>
         </div>
     </footer>
 

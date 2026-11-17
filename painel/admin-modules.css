@@ -592,6 +592,19 @@
     display: none;
 }
 
+.admin-banner-preview {
+    width: min(100%, 520px);
+    aspect-ratio: 2 / 1;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: #141411;
+    object-fit: cover;
+}
+
+.admin-banner-preview[hidden] {
+    display: none;
+}
+
 .admin-empty-state[hidden],
 .admin-notice[hidden],
 .admin-settings-section [hidden] {

@@ -1,9 +1,9 @@
 (() => {
     "use strict";
 
-    const PROFILE_BUCKET = "barberflow-profile";
+    const STORE_IMAGES_BUCKET = "barberflow-profile";
     const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-    const ALLOWED_PROFILE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+    const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
     const notice = document.querySelector("#settings-notice");
     const couponForm = document.querySelector("#coupon-form");
     const couponBody = document.querySelector("#coupon-table-body");
@@ -13,11 +13,18 @@
     const profilePreview = document.querySelector("#profile-photo-preview");
     const profileEmpty = document.querySelector("#profile-photo-empty");
     const profileRemove = document.querySelector("#profile-photo-remove");
+    const heroBannerForm = document.querySelector("#hero-banner-form");
+    const heroBannerFile = document.querySelector("#hero-banner-file");
+    const heroBannerPreview = document.querySelector("#hero-banner-preview");
+    const heroBannerEmpty = document.querySelector("#hero-banner-empty");
+    const heroBannerRemove = document.querySelector("#hero-banner-remove");
     let coupons = [];
     let products = [];
     let editingCode = null;
     let profilePath = "";
     let previewUrl = "";
+    let heroBannerPath = "";
+    let heroBannerPreviewUrl = "";
 
     function escapeHTML(value) {
         return String(value ?? "")
@@ -330,6 +337,17 @@
         renderProfilePhoto();
     }
 
+    async function loadHeroBanner() {
+        const { data, error } = await getClient()
+            .from("store_settings")
+            .select("hero_banner_path")
+            .eq("singleton", true)
+            .single();
+        if (error) throw error;
+        heroBannerPath = data.hero_banner_path || "";
+        renderHeroBanner();
+    }
+
     function renderProfilePhoto(localUrl = "") {
         if (localUrl) {
             profilePreview.src = localUrl;
@@ -339,7 +357,7 @@
             return;
         }
         if (profilePath) {
-            const { data } = getClient().storage.from(PROFILE_BUCKET).getPublicUrl(profilePath);
+            const { data } = getClient().storage.from(STORE_IMAGES_BUCKET).getPublicUrl(profilePath);
             profilePreview.src = data.publicUrl;
             profilePreview.hidden = false;
             profileEmpty.hidden = true;
@@ -352,8 +370,30 @@
         }
     }
 
-    function validateProfileFile(file) {
-        if (!ALLOWED_PROFILE_TYPES.has(file.type)) {
+    function renderHeroBanner(localUrl = "") {
+        if (localUrl) {
+            heroBannerPreview.src = localUrl;
+            heroBannerPreview.hidden = false;
+            heroBannerEmpty.hidden = true;
+            heroBannerRemove.hidden = !heroBannerPath;
+            return;
+        }
+        if (heroBannerPath) {
+            const { data } = getClient().storage.from(STORE_IMAGES_BUCKET).getPublicUrl(heroBannerPath);
+            heroBannerPreview.src = data.publicUrl;
+            heroBannerPreview.hidden = false;
+            heroBannerEmpty.hidden = true;
+            heroBannerRemove.hidden = false;
+        } else {
+            heroBannerPreview.removeAttribute("src");
+            heroBannerPreview.hidden = true;
+            heroBannerEmpty.hidden = false;
+            heroBannerRemove.hidden = true;
+        }
+    }
+
+    function validateImageFile(file) {
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
             throw new Error("Use uma imagem JPG, PNG ou WebP.");
         }
         if (file.size > MAX_IMAGE_SIZE) {
@@ -370,7 +410,7 @@
             return;
         }
         try {
-            validateProfileFile(file);
+            validateImageFile(file);
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             previewUrl = URL.createObjectURL(file);
             renderProfilePhoto(previewUrl);
@@ -395,11 +435,11 @@
         let uploadedPath = "";
         const previousPath = profilePath;
         try {
-            validateProfileFile(file);
+            validateImageFile(file);
             const extensionByType = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
             uploadedPath = `profile-${crypto.randomUUID()}.${extensionByType[file.type]}`;
             const { error: uploadError } = await getClient().storage
-                .from(PROFILE_BUCKET)
+                .from(STORE_IMAGES_BUCKET)
                 .upload(uploadedPath, file, {
                     contentType: file.type,
                     cacheControl: "3600",
@@ -414,22 +454,25 @@
             if (settingsError) throw settingsError;
 
             profilePath = uploadedPath;
+            window.dispatchEvent(new CustomEvent("store-profile-updated", {
+                detail: { path: profilePath }
+            }));
             profileForm.reset();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             previewUrl = "";
             renderProfilePhoto();
             if (previousPath) {
-                const { error: removeError } = await getClient().storage.from(PROFILE_BUCKET).remove([previousPath]);
+                const { error: removeError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([previousPath]);
                 if (removeError) {
                     console.error("A foto foi atualizada, mas a anterior não foi removida:", removeError);
                     showNotice("Foto atualizada, mas não foi possível limpar o arquivo anterior.", "error");
                     return;
                 }
             }
-            showNotice("Foto de perfil salva. Ela ainda não é exibida na loja.");
+            showNotice("Foto de perfil salva.");
         } catch (error) {
             if (uploadedPath) {
-                const { error: cleanupError } = await getClient().storage.from(PROFILE_BUCKET).remove([uploadedPath]);
+                const { error: cleanupError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([uploadedPath]);
                 if (cleanupError) console.error("Erro ao limpar o upload após falha:", cleanupError);
             }
             console.error("Erro ao salvar foto de perfil:", error);
@@ -450,11 +493,14 @@
                 .eq("singleton", true);
             if (settingsError) throw settingsError;
             profilePath = "";
+            window.dispatchEvent(new CustomEvent("store-profile-updated", {
+                detail: { path: profilePath }
+            }));
             profileForm.reset();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             previewUrl = "";
             renderProfilePhoto();
-            const { error: removeError } = await getClient().storage.from(PROFILE_BUCKET).remove([oldPath]);
+            const { error: removeError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([oldPath]);
             if (removeError) {
                 console.error("A foto foi removida das configurações, mas o arquivo não foi limpo:", removeError);
                 showNotice("Foto removida das configurações, mas não foi possível limpar o arquivo.", "error");
@@ -466,6 +512,114 @@
             showNotice(`Não foi possível remover a foto. ${error.message || "Tente novamente."}`, "error");
         } finally {
             profileRemove.disabled = false;
+        }
+    });
+
+    heroBannerFile.addEventListener("change", () => {
+        const file = heroBannerFile.files && heroBannerFile.files[0];
+        if (!file) {
+            if (heroBannerPreviewUrl) URL.revokeObjectURL(heroBannerPreviewUrl);
+            heroBannerPreviewUrl = "";
+            renderHeroBanner();
+            return;
+        }
+        try {
+            validateImageFile(file);
+            if (heroBannerPreviewUrl) URL.revokeObjectURL(heroBannerPreviewUrl);
+            heroBannerPreviewUrl = URL.createObjectURL(file);
+            renderHeroBanner(heroBannerPreviewUrl);
+        } catch (error) {
+            showNotice(error.message, "error");
+            heroBannerFile.value = "";
+            if (heroBannerPreviewUrl) URL.revokeObjectURL(heroBannerPreviewUrl);
+            heroBannerPreviewUrl = "";
+            renderHeroBanner();
+        }
+    });
+
+    heroBannerForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        const file = heroBannerFile.files && heroBannerFile.files[0];
+        if (!file) {
+            showNotice("Escolha uma imagem antes de salvar.", "error");
+            return;
+        }
+        const button = heroBannerForm.querySelector('[type="submit"]');
+        button.disabled = true;
+        let uploadedPath = "";
+        const previousPath = heroBannerPath;
+        try {
+            validateImageFile(file);
+            const extensionByType = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+            uploadedPath = `banner-${crypto.randomUUID()}.${extensionByType[file.type]}`;
+            const { error: uploadError } = await getClient().storage
+                .from(STORE_IMAGES_BUCKET)
+                .upload(uploadedPath, file, {
+                    contentType: file.type,
+                    cacheControl: "3600",
+                    upsert: false
+                });
+            if (uploadError) throw uploadError;
+
+            const { error: settingsError } = await getClient()
+                .from("store_settings")
+                .update({ hero_banner_path: uploadedPath, updated_at: new Date().toISOString() })
+                .eq("singleton", true);
+            if (settingsError) throw settingsError;
+
+            heroBannerPath = uploadedPath;
+            heroBannerForm.reset();
+            if (heroBannerPreviewUrl) URL.revokeObjectURL(heroBannerPreviewUrl);
+            heroBannerPreviewUrl = "";
+            renderHeroBanner();
+            if (previousPath) {
+                const { error: removeError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([previousPath]);
+                if (removeError) {
+                    console.error("O banner foi atualizado, mas o arquivo anterior não foi removido:", removeError);
+                    showNotice("Banner atualizado, mas não foi possível limpar o arquivo anterior.", "error");
+                    return;
+                }
+            }
+            showNotice("Banner salvo. Atualize a loja para visualizar a mudança.");
+        } catch (error) {
+            if (uploadedPath) {
+                const { error: cleanupError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([uploadedPath]);
+                if (cleanupError) console.error("Erro ao limpar o upload após falha:", cleanupError);
+            }
+            console.error("Erro ao salvar banner:", error);
+            showNotice(`Não foi possível salvar o banner. ${error.message || "Tente novamente."}`, "error");
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    heroBannerRemove.addEventListener("click", async () => {
+        if (!heroBannerPath || !window.confirm("Restaurar a imagem padrão do banner?")) return;
+        heroBannerRemove.disabled = true;
+        const oldPath = heroBannerPath;
+        try {
+            const { error: settingsError } = await getClient()
+                .from("store_settings")
+                .update({ hero_banner_path: "", updated_at: new Date().toISOString() })
+                .eq("singleton", true);
+            if (settingsError) throw settingsError;
+            heroBannerPath = "";
+            heroBannerForm.reset();
+            if (heroBannerPreviewUrl) URL.revokeObjectURL(heroBannerPreviewUrl);
+            heroBannerPreviewUrl = "";
+            renderHeroBanner();
+            const { error: removeError } = await getClient().storage.from(STORE_IMAGES_BUCKET).remove([oldPath]);
+            if (removeError) {
+                console.error("O banner foi removido das configurações, mas o arquivo não foi limpo:", removeError);
+                showNotice("Banner removido das configurações, mas não foi possível limpar o arquivo.", "error");
+                return;
+            }
+            showNotice("Banner padrão restaurado. Atualize a loja para visualizar a mudança.");
+        } catch (error) {
+            console.error("Erro ao restaurar o banner:", error);
+            showNotice(`Não foi possível restaurar o banner. ${error.message || "Tente novamente."}`, "error");
+        } finally {
+            heroBannerRemove.disabled = false;
         }
     });
 
@@ -487,6 +641,25 @@
         } catch (error) {
             console.error("Erro ao carregar as configurações:", error);
             showNotice(`Não foi possível carregar as configurações. ${error.message || "Tente novamente."}`, "error");
+        }
+        try {
+            await loadHeroBanner();
+        } catch (error) {
+            console.error("Erro ao carregar as configurações do banner:", error);
+            const errorMessage = String(error.message || "");
+            const missingBannerColumn = ["42703", "PGRST204"].includes(error.code)
+                || (/hero_banner_path/i.test(errorMessage) && /does not exist|could not find/i.test(errorMessage));
+            if (missingBannerColumn) {
+                heroBannerForm.querySelectorAll("input, button").forEach(control => {
+                    control.disabled = true;
+                });
+                showNotice(
+                    "O banner ainda não foi habilitado no banco. Execute a migration 20261117_store_hero_banner.sql no SQL Editor do Supabase e atualize esta página.",
+                    "error"
+                );
+            } else {
+                showNotice(`Não foi possível carregar o banner. ${error.message || "Tente novamente."}`, "error");
+            }
         }
 
         getClient().channel("admin-store-settings")
