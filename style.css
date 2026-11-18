@@ -95,24 +95,20 @@ img {
     border-radius: 50%;
     overflow: hidden;
     color: var(--yellow);
-    font-size: 15px;
-    transform: rotate(-15deg);
 }
 
+.logo-mark > .brand-default-mark,
+.admin-brand-mark > .brand-default-mark,
 .logo-mark > .store-profile-mark-image,
 .admin-brand-mark > .store-profile-mark-image {
+    grid-area: 1 / 1;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.logo-mark.has-profile-image,
-.admin-brand-mark.has-profile-image {
-    transform: none;
-}
-
-.logo-mark.has-profile-image > i,
-.admin-brand-mark.has-profile-image > i,
+.logo-mark.has-profile-image > .brand-default-mark,
+.admin-brand-mark.has-profile-image > .brand-default-mark,
 .profile-icon-wrap.has-profile-image > i {
     display: none;
 }
@@ -1636,7 +1632,7 @@ img {
 
     .hero-art.has-profile-image .hero-profile-image {
         object-fit: cover;
-        filter: blur(3px) brightness(0.52) saturate(0.78);
+        filter: brightness(0.52) saturate(0.78);
         transform: scale(1.04);
     }
 

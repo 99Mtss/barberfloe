@@ -34,7 +34,7 @@
                 .getPublicUrl(photo.storage_path);
             const image = document.createElement("img");
             image.src = publicUrl.publicUrl;
-            image.alt = photo.alt_text || "Foto da barbearia BarberFlow";
+            image.alt = photo.alt_text || "Foto da barbearia Barber Luz";
             image.loading = "lazy";
             image.decoding = "async";
             const item = document.createElement("button");
@@ -47,7 +47,7 @@
             item.addEventListener("click", () => {
                 viewerImage.src = publicUrl.publicUrl;
                 viewerImage.alt = image.alt;
-                viewerDescription.textContent = photo.alt_text || "Barbearia BarberFlow";
+                viewerDescription.textContent = photo.alt_text || "Barbearia Barber Luz";
                 viewer.showModal();
             });
             gallery.append(item);

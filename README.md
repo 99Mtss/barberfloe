@@ -1,6 +1,6 @@
-# BarberFlow
+# Barber Luz
 
-Loja pública e painel administrativo BarberFlow.
+Loja pública e painel administrativo Barber Luz.
 
 ## Links
 
