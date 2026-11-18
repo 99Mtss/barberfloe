@@ -1636,7 +1636,7 @@ img {
 
     .hero-art.has-profile-image .hero-profile-image {
         object-fit: cover;
-        filter: blur(3px) brightness(0.52) saturate(0.78);
+        filter: brightness(0.52) saturate(0.78);
         transform: scale(1.04);
     }
 
